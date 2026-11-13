@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Магазин и числа</title>
+<meta name="description" content="Китайский: числа 0-999, этажи, цены на слух и слова для магазина.">
+<meta name="theme-color" content="#3545C8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%233545C8%22/%3E%3Ctext x=%2232%22 y=%2245%22 font-size=%2236%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22sans-serif%22%3E%E5%AF%B9%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700&family=Noto+Sans:wght@500;600&family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap">
+<style id="app-style">
+/* Layout: one column of tappable panels for menus; the game is a full-height grid of open cards that never moves */
+:root{
+  --bg:#EDF0F7; --surface:#FFFFFF; --ink:#1B2140; --muted:#5F6684; --line:#D5DAE8;
+  --accent:#3545C8; --accent-ink:#FFFFFF; --accent-soft:#E2E6FF;
+  --ok:#1F9D6B; --ok-soft:#D9F3E8; --bad:#D93A3A; --bad-soft:#FCE1E1;
+  --shadow:0 1px 2px rgba(27,33,64,.08),0 4px 14px rgba(27,33,64,.06);
+  --f-display:"Unbounded","Onest",system-ui,sans-serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-hanzi:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --f-pinyin:"Noto Sans","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10131F; --surface:#1A1F33; --ink:#EEF0FA; --muted:#9AA1BE; --line:#2C3350;
+  --accent:#8C98FF; --accent-ink:#0E1230; --accent-soft:#262E5C;
+  --ok:#3CCB90; --ok-soft:#143A2C; --bad:#FF6B6B; --bad-soft:#47191C;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10131F; --surface:#1A1F33; --ink:#EEF0FA; --muted:#9AA1BE; --line:#2C3350;
+  --accent:#8C98FF; --accent-ink:#0E1230; --accent-soft:#262E5C;
+  --ok:#3CCB90; --ok-soft:#143A2C; --bad:#FF6B6B; --bad-soft:#47191C;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.25); color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;box-sizing:border-box}
+img{max-width:100%}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+#app{min-height:100%;}
+#app.full{height:100%}
+#app{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:-.01em}
+.hz{font-family:var(--f-hanzi);font-weight:500}
+.py{font-family:var(--f-pinyin);font-weight:500}
+.wrap{max-width:720px;margin:0 auto;padding-block:20px 40px;display:flex;flex-direction:column;gap:22px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:600;font-size:15px}
+.seal{width:34px;height:34px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-hanzi);font-weight:700;font-size:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;font-size:15px;text-decoration:none;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.big{min-height:58px;font-size:18px;border-radius:16px;width:100%}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--accent);padding-inline:8px}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.danger.armed{background:var(--bad);color:#fff}
+.btn[disabled]{opacity:.5;cursor:default}
+.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.hero h1{font-size:clamp(26px,6vw,40px);line-height:1.1}
+.hero p{margin:8px 0 0;color:var(--muted);max-width:40ch}
+.fan{position:relative;width:132px;height:100px;flex:none}
+.fan span{position:absolute;width:62px;height:76px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);box-shadow:var(--shadow);display:grid;place-items:center}
+.fan span:nth-child(1){left:0;top:16px;transform:rotate(-9deg);font-size:30px}
+.fan span:nth-child(2){left:36px;top:2px;font-size:17px;z-index:1;border-color:var(--accent);background:var(--accent-soft)}
+.fan span:nth-child(3){left:72px;top:16px;transform:rotate(9deg);font-size:30px}
+@media (max-width:420px){.fan{display:none}.hero{grid-template-columns:1fr}}
+.group{display:flex;flex-direction:column;gap:10px}
+.label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.choices{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.choice{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);min-height:64px}
+.choice b{font-weight:600;font-size:16px}
+.choice small{color:var(--muted);font-size:13px;line-height:1.3}
+.choice[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.note{font-size:14px;color:var(--muted);margin:0}
+.warn{padding:12px 14px;border-radius:12px;background:var(--bad-soft);color:var(--ink);font-size:14px}
+.cta{position:sticky;bottom:0;padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--bg) 30%)}
+/* game */
+.game{height:100%;display:flex;flex-direction:column;gap:12px;max-width:1100px;margin:0 auto;padding-block:12px}
+.hud{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;line-height:1.1}
+.stat b{font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.stat small{font-size:12px;color:var(--muted)}
+.stat.score b.pop{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.2)}}
+.hud .grow{flex:1}
+@media (max-width:480px){.hud{gap:8px 12px;flex-wrap:nowrap}.hud .btn{padding-inline:10px;font-size:14px}.stat b{font-size:17px}.stat small{font-size:11px}}
+.board{flex:1;min-height:0;display:grid;gap:10px}
+.card{position:relative;container-type:size;min-width:0;min-height:0;border-radius:16px;border:2px solid var(--line);background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;padding:6px;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .12s,border-color .12s,background-color .12s,opacity .3s}
+.card .face{max-width:100%;text-align:center;line-height:1.15;overflow-wrap:anywhere}
+.card .hz{font-size:min(42cqh,calc(84cqw / var(--len,1)))}
+.card .py{font-size:min(20cqh,calc(150cqw / var(--len,1)),34px)}
+.card .emo{font-size:min(56cqh,56cqw);line-height:1}
+.num{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;font-family:var(--f-display);font-weight:600;font-variant-numeric:tabular-nums;color:var(--accent)}
+.num small{font-family:var(--f-body);font-weight:600;font-size:.34em;margin-top:.2em;color:var(--muted)}
+.card .num{font-size:min(40cqh,calc(110cqw / var(--nlen,3)))}
+.thumb .num{font-size:18px}
+/* урок */
+.acts-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.act{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 16px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);min-height:84px}
+.act b{font-size:17px;font-weight:600}
+.act small{color:var(--muted);font-size:13px;line-height:1.35}
+.act .tag{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.soundrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.soundrow .note{flex:1 1 220px}
+.quiz{max-width:720px;margin:0 auto;padding-block:12px 32px;display:flex;flex-direction:column;gap:16px}
+.qcard{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;min-height:190px;justify-content:center}
+.qcard .ask{font-size:17px;font-weight:600}
+.qcard .ask .hz{font-size:22px}
+.qcard .big{font-family:var(--f-display);font-size:clamp(56px,16vw,96px);font-weight:600;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.qcard .reveal{font-size:15px;color:var(--muted)}
+.qcard .reveal .hz{font-size:26px;color:var(--ink)}
+.qtools{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{min-height:76px;border-radius:16px;border:2px solid var(--line);background:var(--surface);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;padding:8px;touch-action:manipulation;transition:background-color .12s,border-color .12s}
+.opt.hz{font-size:min(28px,7vw);font-weight:500}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft);opacity:.6}
+.card img{position:absolute;top:8px;left:8px;width:calc(100% - 16px);height:calc(100% - 16px);object-fit:contain;border-radius:12px;pointer-events:none}
+.card.sel{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-2px)}
+.card.ok{border-color:var(--ok);background:var(--ok-soft)}
+.card.done{opacity:.4;box-shadow:none;cursor:default}
+.card.bad{border-color:var(--bad);background:var(--bad-soft);animation:shake .3s}
+.card .tick{position:absolute;top:6px;right:8px;color:var(--ok);font-weight:700;font-size:16px}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.card,.card.bad,.stat.score b.pop{animation:none;transition:none}}
+/* end */
+.result{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.result div{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:16px}
+.result b{display:block;font-family:var(--f-display);font-size:34px;font-variant-numeric:tabular-nums}
+.result small{color:var(--muted)}
+.list{display:flex;flex-direction:column;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:1px solid var(--line);min-width:0}
+.row:first-child{border-top:0}
+.row .t{display:flex;flex-direction:column;min-width:0;flex:1}
+.row .t .hz{font-size:20px}
+.row .t span{color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.chip{font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.btn.play{min-height:40px;width:44px;padding:0;font-size:14px;flex:none}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.thumb{width:52px;height:52px;flex:none;border-radius:10px;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;overflow:hidden;font-size:28px}
+.thumb img{width:100%;height:100%;object-fit:contain}
+.check{width:26px;height:26px;flex:none;accent-color:var(--accent)}
+.row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row .acts .btn{min-height:38px;padding:6px 10px;font-size:14px}
+@media (max-width:520px){.row{flex-wrap:wrap}.row .acts{width:100%}}
+/* form */
+.panel{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:14px;font-weight:600}
+.field input[type=text]{min-height:48px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-size:17px;width:100%}
+.field input.hz{font-size:22px}
+.field small{color:var(--muted);font-size:13px}
+.imgpick{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.imgpick .thumb{width:72px;height:72px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.formacts{display:flex;gap:8px;flex-wrap:wrap}
+.autoline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:22px;font-size:13px;color:var(--muted)}
+.autoline:empty{display:none}
+.autoline.busy::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.autoline .btn{min-height:34px;padding:4px 10px;font-size:13px}
+.thumb .emo{font-size:40px;line-height:1}
+.sharebar{position:sticky;bottom:0;z-index:5;padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
+.sharebar .panel{flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:var(--shadow);border-color:var(--accent)}
+/* modal & toast */
+.modal{position:fixed;inset:0;z-index:20;background:rgba(10,12,25,.45);display:grid;place-items:center;padding:20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))}
+.modal .panel{width:min(520px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.linkbox{display:flex;gap:8px;flex-wrap:wrap}
+.linkbox input{flex:1 1 220px;min-width:0;min-height:44px;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;font-size:15px;max-width:min(520px,calc(100% - 32px));box-shadow:var(--shadow)}
+.homework{display:flex;flex-direction:column;gap:18px;padding-block:8vh 24px}
+.homework .eyebrow{color:var(--accent);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.homework h1{font-size:clamp(28px,7vw,44px);line-height:1.1}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+'use strict';
+var PAIRS = 6;
+var LS = 'mc1:'; /* свой прогресс, отдельно от первой игры */
+
+function load(k, d){ try{ var v = localStorage.getItem(LS+k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } }
+function save(k, v){ try{ if (v == null) localStorage.removeItem(LS+k); else localStorage.setItem(LS+k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function rid(){ var s=''; var a='abcdefghijkmnpqrstuvwxyz23456789'; for (var i=0;i<8;i++) s += a[Math.floor(Math.random()*a.length)]; return s; }
+function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function plural(n, one, few, many){ var m10=n%10, m100=n%100; if (m10===1 && m100!==11) return one; if (m10>=2 && m10<=4 && (m100<12||m100>14)) return few; return many; }
+function normPy(s){ return String(s||'').toLowerCase().replace(/[\s'’\-]/g,''); }
+
+/* ---------- Картинки для стартовых карточек ---------- */
+function svgUrl(s){ return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s); }
+var SVG_TV = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#DCE8FF"/><path d="M100 38 L76 12 M100 38 L126 10" stroke="#3B3F5C" stroke-width="6" stroke-linecap="round"/><rect x="36" y="36" width="128" height="92" rx="14" fill="#3B3F5C"/><rect x="47" y="47" width="106" height="70" rx="7" fill="#8FD3FF"/><circle cx="128" cy="66" r="10" fill="#FFD166"/><path d="M47 117 L80 80 L100 100 L116 86 L153 117 Z" fill="#5BB974"/><path d="M72 128 L64 146 M128 128 L136 146" stroke="#3B3F5C" stroke-width="6" stroke-linecap="round"/><ellipse cx="74" cy="206" rx="34" ry="22" fill="#2A2D45"/><circle cx="74" cy="176" r="19" fill="#2A2D45"/><ellipse cx="128" cy="208" rx="30" ry="20" fill="#4A4E6E"/><circle cx="128" cy="181" r="17" fill="#4A4E6E"/></svg>');
+var SVG_GAME = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#FFE3D6"/><path d="M100 30 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="#FF9F68"/><path d="M150 40 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#FFD166"/><circle cx="56" cy="132" r="28" fill="#4B3F72"/><circle cx="144" cy="132" r="28" fill="#4B3F72"/><rect x="28" y="72" width="144" height="70" rx="35" fill="#4B3F72"/><rect x="52" y="90" width="11" height="34" rx="3" fill="#FFFFFF"/><rect x="40" y="101.5" width="35" height="11" rx="3" fill="#FFFFFF"/><circle cx="142" cy="92" r="8" fill="#FF6B6B"/><circle cx="158" cy="107" r="8" fill="#FFD166"/><circle cx="126" cy="107" r="8" fill="#4ECDC4"/><circle cx="142" cy="122" r="8" fill="#7BD389"/><rect x="88" y="96" width="24" height="7" rx="3.5" fill="#8A7FB8"/></svg>');
+var SVG_SLEEP = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#2E3361"/><circle cx="150" cy="46" r="22" fill="#FFE08A"/><circle cx="161" cy="39" r="20" fill="#2E3361"/><circle cx="40" cy="36" r="3" fill="#FFFFFF"/><circle cx="72" cy="22" r="2" fill="#FFFFFF"/><circle cx="112" cy="30" r="2.5" fill="#FFFFFF"/><text x="92" y="86" font-family="Arial,sans-serif" font-weight="700" font-size="18" fill="#C9D1FF">z</text><text x="106" y="70" font-family="Arial,sans-serif" font-weight="700" font-size="24" fill="#C9D1FF">z</text><text x="124" y="50" font-family="Arial,sans-serif" font-weight="700" font-size="30" fill="#C9D1FF" opacity=".7">z</text><rect x="22" y="86" width="18" height="90" rx="7" fill="#6E4634"/><rect x="22" y="124" width="156" height="38" rx="8" fill="#8A5A44"/><rect x="30" y="160" width="9" height="16" rx="3" fill="#6E4634"/><rect x="164" y="160" width="9" height="16" rx="3" fill="#6E4634"/><ellipse cx="62" cy="114" rx="20" ry="11" fill="#FFFFFF"/><circle cx="64" cy="106" r="13" fill="#F5C9A0"/><path d="M58 106 q3 3 6 0" stroke="#6E4634" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="72" y="104" width="104" height="30" rx="14" fill="#7FB3FF"/><path d="M84 116 h80" stroke="#A9CCFF" stroke-width="4" stroke-linecap="round"/></svg>');
+var SVG_PHONE = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#DFF5E8"/><circle cx="96" cy="104" r="62" fill="#34A56F"/><g transform="translate(60 66) scale(3.1)"><path fill="#FFFFFF" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></g><path d="M150 46 a34 34 0 0 1 22 30" stroke="#2F7A55" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M146 26 a54 54 0 0 1 40 46" stroke="#2F7A55" stroke-width="7" fill="none" stroke-linecap="round" opacity=".55"/></svg>');
+var SVG_COOK = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#FFF1D6"/><path d="M72 76 q-10 -12 0 -24 q10 -12 0 -24" stroke="#C9B8A6" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M100 76 q-10 -12 0 -24 q10 -12 0 -24" stroke="#C9B8A6" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M128 76 q-10 -12 0 -24 q10 -12 0 -24" stroke="#C9B8A6" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="24" y="100" width="24" height="11" rx="5.5" fill="#B23F35"/><rect x="152" y="100" width="24" height="11" rx="5.5" fill="#B23F35"/><rect x="44" y="94" width="112" height="62" rx="16" fill="#E0594B"/><rect x="36" y="86" width="128" height="15" rx="7.5" fill="#B23F35"/><rect x="60" y="112" width="40" height="8" rx="4" fill="#F08A7E"/><path d="M70 186 q-10 -10 0 -24 q4 10 10 12 q2 -8 -2 -14 q14 8 8 26z" fill="#FF9F1C"/><path d="M110 186 q-10 -10 0 -24 q4 10 10 12 q2 -8 -2 -14 q14 8 8 26z" fill="#FF9F1C"/><rect x="40" y="184" width="120" height="8" rx="4" fill="#5B4A3F"/></svg>');
+var SVG_STUDY = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#E5E9FF"/><polygon points="100,24 170,52 100,80 30,52" fill="#2F3A56"/><path d="M62 64 v20 q38 18 76 0 v-20 l-38 15z" fill="#2F3A56"/><path d="M100 52 L154 62 V92" stroke="#FFC93C" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="154" cy="96" r="7" fill="#FFC93C"/><path d="M28 118 q36 -12 72 0 v58 q-36 -12 -72 0z" fill="#FFFFFF" stroke="#3B4A9E" stroke-width="4" stroke-linejoin="round"/><path d="M100 118 q36 -12 72 0 v58 q-36 -12 -72 0z" fill="#FFFFFF" stroke="#3B4A9E" stroke-width="4" stroke-linejoin="round"/><path d="M42 132 h44 M42 146 h44 M42 160 h30 M114 132 h44 M114 146 h44 M114 160 h30" stroke="#AEB8E8" stroke-width="4" stroke-linecap="round"/></svg>');
+var SVG_READ = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#FFE7EC"/><circle cx="100" cy="74" r="38" fill="#F5C9A0"/><path d="M62 70 q4 -40 38 -40 q36 0 40 40 q-12 -18 -40 -20 q-26 2 -38 20z" fill="#4A3B35"/><circle cx="86" cy="76" r="5" fill="#2F2A2A"/><circle cx="114" cy="76" r="5" fill="#2F2A2A"/><path d="M80 66 q6 -4 12 0 M108 66 q6 -4 12 0" stroke="#4A3B35" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M22 104 q39 -14 78 4 q39 -18 78 -4 v66 q-39 -14 -78 4 q-39 -18 -78 -4z" fill="#D94B6A"/><path d="M30 100 q35 -12 70 4 v62 q-35 -16 -70 -4z" fill="#FFFFFF"/><path d="M100 104 q35 -16 70 -4 v62 q-35 -12 -70 4z" fill="#FFFFFF"/><path d="M44 118 q22 -6 44 2 M44 132 q22 -6 44 2 M44 146 q22 -6 44 2 M112 120 q22 -8 44 -2 M112 134 q22 -8 44 -2 M112 148 q22 -8 44 -2" stroke="#F2B5C3" stroke-width="4" fill="none" stroke-linecap="round"/></svg>');
+var SVG_MUSIC = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#E8F7FF"/><path d="M46 124 v-24 a54 54 0 0 1 108 0 v24" stroke="#2F3A56" stroke-width="12" fill="none" stroke-linecap="round"/><rect x="32" y="106" width="32" height="54" rx="14" fill="#FF6B6B"/><rect x="136" y="106" width="32" height="54" rx="14" fill="#FF6B6B"/><rect x="40" y="116" width="14" height="34" rx="7" fill="#FF9A9A"/><rect x="146" y="116" width="14" height="34" rx="7" fill="#FF9A9A"/><circle cx="90" cy="146" r="11" fill="#6C63FF"/><rect x="97" y="96" width="6" height="51" rx="3" fill="#6C63FF"/><path d="M100 96 q20 6 16 26 q-4 -12 -16 -12z" fill="#6C63FF"/><circle cx="118" cy="82" r="6" fill="#4ECDC4"/><rect x="122" y="56" width="4" height="27" rx="2" fill="#4ECDC4"/></svg>');
+var SVG_TRAVEL = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#DDF3F5"/><path d="M26 70 Q86 14 146 48" stroke="#2F3A56" stroke-width="4" fill="none" stroke-dasharray="7 9" stroke-linecap="round"/><path d="M162 24 a16 16 0 0 1 16 16 c0 12 -16 28 -16 28 c0 0 -16 -16 -16 -28 a16 16 0 0 1 16 -16z" fill="#E0594B"/><circle cx="162" cy="40" r="6" fill="#FFFFFF"/><path d="M80 84 v-14 q0 -8 8 -8 h24 q8 0 8 8 v14" stroke="#2F3A56" stroke-width="8" fill="none"/><rect x="50" y="82" width="100" height="88" rx="14" fill="#F28C38"/><rect x="72" y="82" width="10" height="88" fill="#D9722A"/><rect x="118" y="82" width="10" height="88" fill="#D9722A"/><circle cx="66" cy="176" r="8" fill="#2F3A56"/><circle cx="134" cy="176" r="8" fill="#2F3A56"/><circle cx="100" cy="122" r="12" fill="#FFD166"/></svg>');
+var SVG_FIT = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#FFE9D9"/><rect x="48" y="94" width="104" height="14" rx="7" fill="#6A6F8E"/><rect x="34" y="68" width="22" height="66" rx="7" fill="#2F3A56"/><rect x="144" y="68" width="22" height="66" rx="7" fill="#2F3A56"/><rect x="20" y="80" width="16" height="42" rx="6" fill="#4A4E6E"/><rect x="164" y="80" width="16" height="42" rx="6" fill="#4A4E6E"/><path d="M70 50 l-8 -14 M100 44 v-18 M130 50 l8 -14" stroke="#FF7A45" stroke-width="7" stroke-linecap="round"/><path d="M100 140 c-10 14 -12 22 -12 28 a12 12 0 0 0 24 0 c0 -6 -2 -14 -12 -28z" fill="#5BB8FF"/></svg>');
+var SVG_ANIME = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#F1E6FF"/><rect x="26" y="34" width="148" height="108" rx="16" fill="#2F3A56"/><rect x="36" y="44" width="128" height="88" rx="10" fill="#FFD6E8"/><path d="M60 58 q40 -18 80 0 q-6 -4 -10 10 q-8 -10 -18 -4 q-8 -10 -22 0 q-10 -8 -18 4 q-6 -12 -12 -10z" fill="#7B5CFF"/><ellipse cx="78" cy="94" rx="14" ry="19" fill="#2F3A56"/><ellipse cx="122" cy="94" rx="14" ry="19" fill="#2F3A56"/><ellipse cx="78" cy="98" rx="9" ry="11" fill="#6C9BFF"/><ellipse cx="122" cy="98" rx="9" ry="11" fill="#6C9BFF"/><circle cx="83" cy="86" r="5" fill="#FFFFFF"/><circle cx="127" cy="86" r="5" fill="#FFFFFF"/><ellipse cx="62" cy="116" rx="8" ry="4" fill="#FF8FB1"/><ellipse cx="138" cy="116" rx="8" ry="4" fill="#FF8FB1"/><path d="M94 118 q6 6 12 0" stroke="#2F3A56" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="90" y="142" width="20" height="18" fill="#2F3A56"/><rect x="62" y="158" width="76" height="10" rx="5" fill="#2F3A56"/><path d="M160 20 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z" fill="#FFB800"/></svg>');
+/* Карточки, которые добавил Claude по просьбе преподавателя */
+var SVG_LATE = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="28" fill="#FFF3D1"/><circle cx="118" cy="92" r="58" fill="#FFFFFF" stroke="#2F3A56" stroke-width="9"/><path d="M118 92 V58 M118 92 L144 106" stroke="#E0594B" stroke-width="8" stroke-linecap="round"/><circle cx="118" cy="92" r="6" fill="#2F3A56"/><path d="M118 42 v8 M168 92 h-8 M118 142 v-8 M68 92 h8" stroke="#2F3A56" stroke-width="5" stroke-linecap="round"/><path d="M86 30 l-14 -12 M150 30 l14 -12" stroke="#2F3A56" stroke-width="7" stroke-linecap="round"/><path d="M18 150 h34 M10 166 h30 M24 182 h26" stroke="#F2A93B" stroke-width="7" stroke-linecap="round"/><circle cx="78" cy="162" r="14" fill="#F5C9A0"/><path d="M60 196 l14 -20 l14 6" stroke="#3545C8" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+var EXTRA = [
+  {id:'m:x-chidao', hz:'迟到', py:'chídào', ru:'опаздывать', img:SVG_LATE},
+  {id:'m:x-dianhua', hz:'打电话', py:'dǎ diànhuà', ru:'звонить по телефону', img:SVG_PHONE},
+  {id:'m:x-zuofan', hz:'做饭', py:'zuò fàn', ru:'готовить еду', img:SVG_COOK},
+  {id:'m:x-xuexi', hz:'学习', py:'xuéxí', ru:'учиться', img:SVG_STUDY},
+  {id:'m:x-kanshu', hz:'看书', py:'kàn shū', ru:'читать книгу', img:SVG_READ},
+  {id:'m:x-tingyinyue', hz:'听音乐', py:'tīng yīnyuè', ru:'слушать музыку', img:SVG_MUSIC},
+  {id:'m:x-lvxing', hz:'旅行', py:'lǚxíng', ru:'путешествовать', img:SVG_TRAVEL},
+  {id:'m:x-jianshen', hz:'健身', py:'jiànshēn', ru:'тренироваться', img:SVG_FIT},
+  {id:'m:x-kandongman', hz:'看动漫', py:'kàn dòngmàn', ru:'смотреть аниме', img:SVG_ANIME}
+];
+var SEED = [
+  {id:'m:seed-tv', hz:'看电视', py:'kàn diànshì', ru:'смотреть телевизор', img:SVG_TV},
+  {id:'m:seed-game', hz:'玩游戏', py:'wán yóuxì', ru:'играть в игры', img:SVG_GAME},
+  {id:'m:seed-sleep', hz:'睡觉', py:'shuìjiào', ru:'спать', img:SVG_SLEEP}
+];
+
+/* ---------- HSK 1: иероглифы|пиньинь|перевод|картинка-эмодзи ---------- */
+var HSK_RAW = '爱|ài|любить|❤️\n八|bā|восемь|\n爸爸|bàba|папа|👨\n北京|Běijīng|Пекин|\n不|bù|не, нет|\n菜|cài|блюдо, овощи|🥬\n茶|chá|чай|🍵\n吃|chī|есть, кушать|🥢\n出租车|chūzūchē|такси|🚕\n打电话|dǎ diànhuà|звонить по телефону|📞\n大|dà|большой|\n点|diǎn|час (время)|\n电脑|diànnǎo|компьютер|💻\n电视|diànshì|телевизор|📺\n电影|diànyǐng|фильм|🎬\n东西|dōngxi|вещь|\n都|dōu|все, всё|\n读|dú|читать вслух|\n对不起|duìbuqǐ|извините|\n多|duō|много|\n多少|duōshao|сколько|\n儿子|érzi|сын|👦\n二|èr|два|\n饭店|fàndiàn|ресторан|\n飞机|fēijī|самолёт|✈️\n分钟|fēnzhōng|минута|\n高兴|gāoxìng|радостный|😊\n工作|gōngzuò|работа|\n狗|gǒu|собака|🐶\n汉语|Hànyǔ|китайский язык|\n好|hǎo|хороший|👍\n喝|hē|пить|🥤\n和|hé|и, с|\n很|hěn|очень|\n后面|hòumiàn|сзади|\n回|huí|возвращаться|\n会|huì|уметь|\n火车站|huǒchēzhàn|вокзал|🚉\n几|jǐ|сколько (до 10)|\n家|jiā|дом, семья|🏠\n叫|jiào|звать(ся)|\n今天|jīntiān|сегодня|\n九|jiǔ|девять|\n开|kāi|открывать, водить|\n看|kàn|смотреть|👀\n看见|kànjiàn|увидеть|\n块|kuài|юань (разг.)|\n来|lái|приходить|\n老师|lǎoshī|учитель|🧑‍🏫\n冷|lěng|холодно|🥶\n里|lǐ|внутри|\n零|líng|ноль|\n六|liù|шесть|\n妈妈|māma|мама|👩\n买|mǎi|покупать|🛒\n猫|māo|кошка|🐱\n没关系|méi guānxi|ничего страшного|\n米饭|mǐfàn|варёный рис|🍚\n明天|míngtiān|завтра|\n名字|míngzi|имя|\n哪|nǎ|какой, который|\n哪儿|nǎr|где|\n那|nà|тот, то|\n能|néng|мочь|\n你|nǐ|ты|\n年|nián|год|\n女儿|nǚ’ér|дочь|👧\n朋友|péngyou|друг|\n漂亮|piàoliang|красивый|\n苹果|píngguǒ|яблоко|🍎\n七|qī|семь|\n钱|qián|деньги|💰\n前面|qiánmiàn|впереди|\n请|qǐng|пожалуйста, приглашать|\n去|qù|идти, ехать|\n热|rè|жарко|🥵\n人|rén|человек|\n认识|rènshi|быть знакомым|\n三|sān|три|\n商店|shāngdiàn|магазин|🏪\n上|shàng|наверху|\n上午|shàngwǔ|утро (до полудня)|\n少|shǎo|мало|\n谁|shéi|кто|\n什么|shénme|что|\n十|shí|десять|\n时候|shíhou|время, момент|\n是|shì|быть, являться|\n书|shū|книга|📖\n水|shuǐ|вода|💧\n水果|shuǐguǒ|фрукты|🍇\n睡觉|shuìjiào|спать|😴\n说|shuō|говорить|\n四|sì|четыре|\n岁|suì|лет (возраст)|\n他|tā|он|\n她|tā|она|\n太|tài|слишком|\n天气|tiānqì|погода|⛅\n听|tīng|слушать|🎧\n同学|tóngxué|одноклассник|\n喂|wèi|алло|\n我|wǒ|я|\n我们|wǒmen|мы|\n五|wǔ|пять|\n喜欢|xǐhuan|нравиться|\n下|xià|внизу|\n下午|xiàwǔ|после полудня|\n下雨|xià yǔ|идёт дождь|🌧️\n先生|xiānsheng|господин|\n现在|xiànzài|сейчас|\n想|xiǎng|хотеть, думать|\n小|xiǎo|маленький|\n小姐|xiǎojiě|девушка|\n些|xiē|несколько|\n写|xiě|писать|✍️\n谢谢|xièxie|спасибо|\n星期|xīngqī|неделя|\n学生|xuésheng|ученик|🧑‍🎓\n学习|xuéxí|учиться|\n学校|xuéxiào|школа|🏫\n一|yī|один|\n一点儿|yìdiǎnr|немного|\n衣服|yīfu|одежда|👕\n医生|yīshēng|врач|🧑‍⚕️\n医院|yīyuàn|больница|🏥\n椅子|yǐzi|стул|🪑\n有|yǒu|иметь, есть|\n月|yuè|месяц|\n在|zài|находиться|\n再见|zàijiàn|до свидания|👋\n怎么|zěnme|как|\n怎么样|zěnmeyàng|как, каково|\n这|zhè|это, этот|\n这儿|zhèr|здесь|\n中国|Zhōngguó|Китай|🇨🇳\n中午|zhōngwǔ|полдень|\n住|zhù|жить, проживать|\n桌子|zhuōzi|стол|\n字|zì|иероглиф|\n昨天|zuótiān|вчера|\n坐|zuò|сидеть|\n做|zuò|делать|';
+var HSK = HSK_RAW.split('\n').filter(Boolean).map(function(l){ var p=l.split('|'); return {id:'h:'+p[0], hz:p[0], py:p[1], ru:p[2], emoji:p[3]||'', img:''}; });
+/* порядок изучения: сначала самые базовые слова, потом остальные */
+var HSK_FIRST = '你 我 他 她 好 是 不 很 谢谢 再见 对不起 没关系 一 二 三 四 五 六 七 八 九 十 爸爸 妈妈 儿子 女儿 朋友 老师 学生 吃 喝 水 茶 米饭 苹果 猫 狗 书 看 听 说 写 家 学校 中国 汉语 今天 明天 昨天 现在 喜欢 爱 大 小 多 少 热 冷'.split(' ');
+HSK.sort(function(a, b){ var ia = HSK_FIRST.indexOf(a.hz), ib = HSK_FIRST.indexOf(b.hz); ia = ia < 0 ? 999 : ia; ib = ib < 0 ? 999 : ib; return ia - ib; });
+/* три набора HSK 1 по порядку изучения: 50, 50 и остальные */
+var HSK_PARTS = {hsk1: HSK.slice(0, 50), hsk2: HSK.slice(50, 100), hsk3: HSK.slice(100)};
+
+/* ---------- Состояние ---------- */
+var st = {
+  words: load('words', null),
+  progress: load('progress', {}),
+  settings: Object.assign({source:'hsk1', mode:'auto'}, load('settings', {})),
+  counter: load('counter', 0)
+};
+if (!Array.isArray(st.words)) { st.words = SEED.slice(); save('words', st.words); }
+if (st.settings.source === 'hsk') st.settings.source = 'hsk1';
+(function mergeExtra(){
+  var removed = load('removed', []), added = false;
+  EXTRA.slice().reverse().forEach(function(w){
+    if (removed.indexOf(w.id) >= 0) return;
+    if (st.words.some(function(x){ return x.id === w.id || x.hz === w.hz; })) return;
+    st.words.unshift(w); added = true;
+  });
+  if (added) save('words', st.words);
+})();
+var SHARED_SET = null; /* набор, открытый по ссылке */
+var BUILTIN = {}; SEED.concat(EXTRA).forEach(function(w){ BUILTIN[w.id] = w; });
+var screen = '';
+var sharedId = null;
+var app = document.getElementById('app');
+
+function hasImg(w){ return !!(w.img || w.emoji || w.num); }
+function picHtml(w){ if (w.num) return '<span class="num" style="--nlen:'+Math.max(2, String(w.num).length + (w.unit ? 1 : 0))+'">'+esc(w.num)+(w.unit ? '<small>'+esc(w.unit)+'</small>' : '')+'</span>'; return w.img ? '<img src="'+esc(w.img)+'" alt="">' : (w.emoji ? '<span class="emo">'+esc(w.emoji)+'</span>' : ''); }
+
+/* ---------- Пиньинь: цифры в тоны (kan4 -> kàn) ---------- */
+var TONES = {a:'āáǎà', e:'ēéěè', i:'īíǐì', o:'ōóǒò', u:'ūúǔù', 'ü':'ǖǘǚǜ'};
+function markSyl(s, t){
+  s = s.replace(/u:/g,'ü').replace(/U:/g,'Ü').replace(/v/g,'ü').replace(/V/g,'Ü');
+  if (t < 1 || t > 4) return s;
+  var low = s.toLowerCase(), idx = -1;
+  if (low.indexOf('a') >= 0) idx = low.indexOf('a');
+  else if (low.indexOf('e') >= 0) idx = low.indexOf('e');
+  else if (low.indexOf('ou') >= 0) idx = low.indexOf('o');
+  else { for (var i = low.length-1; i >= 0; i--) { if ('aeiouü'.indexOf(low[i]) >= 0) { idx = i; break; } } }
+  if (idx < 0) return s;
+  var m = TONES[low[idx]][t-1];
+  return s.slice(0, idx) + (s[idx] !== low[idx] ? m.toUpperCase() : m) + s.slice(idx+1);
+}
+function numToMarks(str){ return String(str).replace(/([A-Za-züÜvV:]+)([1-5])/g, function(_, s, t){ return markSyl(s, +t); }); }
+
+/* ---------- Числа по-китайски ---------- */
+var DIG = '零一二三四五六七八九';
+var DPY = ['líng','yī','èr','sān','sì','wǔ','liù','qī','bā','jiǔ'];
+function joinSyl(sy){ return sy.reduce(function(a, x){ return a + (a && /^[aeoāáǎàēéěèōóǒò]/.test(x) ? "'" : '') + x; }, ''); }
+function under100(n){
+  if (n < 10) return {hz:DIG[n], py:DPY[n]};
+  var t = Math.floor(n/10), o = n % 10, hz = '', sy = [];
+  if (t > 1) { hz += DIG[t]; sy.push(DPY[t]); }
+  hz += '十'; sy.push('shí');
+  if (o) { hz += DIG[o]; sy.push(DPY[o]); }
+  return {hz:hz, py:joinSyl(sy)};
+}
+/* liang: 两 вместо 二 перед счётным словом (两块, 两百块) */
+function numInfo(n, liang){
+  if (n < 100) return (liang && n === 2) ? {hz:'两', py:'liǎng'} : under100(n);
+  var h = Math.floor(n/100), r = n % 100;
+  var hz1 = (liang && h === 2 ? '两' : DIG[h]) + '百';
+  var py1 = (liang && h === 2 ? 'liǎng' : (h === 1 ? 'yì' : DPY[h])) + 'bǎi';
+  if (r === 0) return {hz:hz1, py:py1};
+  if (r < 10) return {hz:hz1 + '零' + DIG[r], py:py1 + ' líng ' + DPY[r]};
+  var t = Math.floor(r/10), o = r % 10, sy = [t === 1 ? 'yī' : DPY[t], 'shí'];
+  if (o) sy.push(DPY[o]);
+  return {hz:hz1 + DIG[t] + '十' + (o ? DIG[o] : ''), py:py1 + ' ' + joinSyl(sy)};
+}
+/* порядок изучения чисел: 0-10, 11-19, десятки, остальные до 99, сотни, трёхзначные */
+var NUM_ORDER = (function(){
+  var out = [], i, seedv = 7;
+  function rnd(){ seedv = (seedv * 9301 + 49297) % 233280; return seedv / 233280; }
+  for (i = 0; i <= 19; i++) out.push(i);
+  for (i = 20; i <= 90; i += 10) out.push(i);
+  var rest = []; for (i = 21; i <= 99; i++) if (i % 10) rest.push(i);
+  rest.sort(function(){ return rnd() - .5; }); out = out.concat(rest);
+  for (i = 100; i <= 900; i += 100) out.push(i);
+  var big = {}; while (Object.keys(big).length < 60) { var v = 101 + Math.floor(rnd() * 898); if (v % 100) big[v] = 1; }
+  return out.concat(Object.keys(big).map(Number));
+})();
+var NUMS = NUM_ORDER.map(function(n){ var x = numInfo(n); return {id:'n:'+n, hz:x.hz, py:x.py, ru:String(n), num:String(n)}; });
+var FLOORS = []; for (var fl = 1; fl <= 30; fl++) { var fx = under100(fl); FLOORS.push({id:'f:'+fl, hz:fx.hz+'楼', py:fx.py+' lóu', ru:fl+' этаж', num:String(fl), unit:'этаж'}); }
+var SHOP = [
+  ['多少钱','duōshao qián','сколько стоит','🏷️'], ['钱','qián','деньги','💰'], ['块','kuài','юань (разг.)',''],
+  ['这个','zhège','вот это','👇'], ['那个','nàge','вон то','👉'], ['几个','jǐ ge','сколько штук',''],
+  ['要','yào','хочу, нужно',''], ['不要','bú yào','не хочу, не надо','🙅'], ['付钱','fù qián','оплатить','💳'],
+  ['美女','měinǚ','девушка! (обращение)','👩'], ['什么','shénme','что','❓'], ['好','hǎo','хорошо','👌'],
+  ['等一下','děng yíxià','подождите','✋'], ['楼','lóu','этаж','🏢'], ['住','zhù','жить','🏠'],
+  ['你住几楼','nǐ zhù jǐ lóu','на каком этаже ты живёшь',''],
+  ['我','wǒ','я',''], ['你','nǐ','ты',''], ['他','tā','он',''], ['她','tā','она',''],
+  ['我们','wǒmen','мы',''], ['你们','nǐmen','вы',''], ['他们','tāmen','они','']
+].map(function(a){ return {id:'s:'+a[0], hz:a[0], py:a[1], ru:a[2], emoji:a[3], img:''}; });
+var POOLS = {nums:NUMS, floors:FLOORS, shop:SHOP};
+
+/* ---------- Наборы слов ---------- */
+function poolFor(source){
+  if (source === 'shared') return SHARED_SET ? SHARED_SET.words : [];
+  var arr = [];
+  if (HSK_PARTS[source]) arr = HSK_PARTS[source];
+  else if (POOLS[source]) arr = POOLS[source];
+  else {
+    if (source === 'mine' || source === 'both') arr = arr.concat(st.words);
+    if (source !== 'mine') arr = arr.concat(HSK);
+  }
+  var seen = {};
+  return arr.filter(function(w){ if (!w.hz || !w.py || seen[w.hz]) return false; seen[w.hz] = 1; return true; });
+}
+var PAIR_KINDS = {'py-img':['py','img'], 'hz-img':['hz','img'], 'py-hz':['py','hz']};
+var PAIR_NAMES = {'py-img':'пиньинь + картинка', 'hz-img':'иероглифы + картинка', 'py-hz':'пиньинь + иероглифы'};
+function typeFor(w, mode){
+  if (mode !== 'auto') return mode;
+  if (!hasImg(w)) return 'py-hz';
+  var p = st.progress[w.id];
+  if (!p || (p.clean||0) < 2) return 'py-img';
+  return (p.alt||0) % 2 === 0 ? 'hz-img' : 'py-hz';
+}
+
+/* ---------- Озвучка (голос браузера, без интернета) ---------- */
+var SOUND = load('sound', true);
+var zhVoice = null;
+var zhVoices = [];
+function pickVoice(){
+  if (!window.speechSynthesis) return;
+  var vs = window.speechSynthesis.getVoices() || [];
+  var odd = /Grandma|Grandpa|Rocko|Shelley|Sandy|Reed|Eddy|Flo/i;
+  var cn = vs.filter(function(v){ return /^zh[-_]CN/i.test(v.lang) || /^cmn/i.test(v.lang); });
+  if (!cn.length) cn = vs.filter(function(v){ return /^zh/i.test(v.lang) && !/HK|yue/i.test(v.lang); });
+  /* голос с самого устройства надёжнее: интернет-голоса Google в Chrome часто молчат (VPN, сеть) */
+  function score(v){ return (v.localService ? 0 : 10) + (/Tingting|Ting-Ting|Li-mu|Yu-shu|Meijia|Xiaoxiao|Yunxi|Huihui|Kangkang|Yaoyao/i.test(v.name) ? 0 : 2) + (odd.test(v.name) ? 3 : 0); }
+  zhVoices = cn.slice().sort(function(a, b){ return score(a) - score(b); });
+  zhVoice = zhVoices[0] || null;
+}
+if (window.speechSynthesis) { pickVoice(); try { window.speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch(e){ window.speechSynthesis.onvoiceschanged = pickVoice; } }
+var lastUtter = null; /* держим ссылку, иначе браузер может «потерять» фразу и замолчать */
+function say(text, force){
+  if ((!SOUND && !force) || !window.speechSynthesis || !text) return;
+  if (!zhVoices.length) pickVoice();
+  sayWith(text, zhVoice, 0);
+}
+function sayWith(text, voice, tries){
+  var synth = window.speechSynthesis;
+  try {
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; if (voice) u.voice = voice; u.rate = 0.85; u._try = tries;
+    u.onend = function(){ if (lastUtter === u) lastUtter = null; };
+    u.onerror = function(e){
+      if (lastUtter === u) lastUtter = null;
+      var why = e && e.error;
+      if (why === 'interrupted' || why === 'canceled' || (u._try || 0) >= 2) return;
+      /* голос не сработал: пробуем следующий китайский, потом голос по умолчанию */
+      var next = zhVoices[zhVoices.indexOf(u.voice) + 1] || null;
+      sayWith(text, u.voice ? next : null, (u._try || 0) + 1);
+    };
+    u.onstart = function(){ u._started = true; };
+    /* голос молчит и не сообщает об ошибке: через 1,5 с пробуем другой */
+    setTimeout(function(){
+      if (u._started || lastUtter !== u || tries >= 2) return;
+      try { synth.cancel(); } catch(e){}
+      lastUtter = null;
+      var next = zhVoices[zhVoices.indexOf(u.voice) + 1] || null;
+      sayWith(text, u.voice ? next : null, tries + 1);
+    }, 1500);
+    var prev = lastUtter;
+    lastUtter = u; u._t = Date.now();
+    if (synth.paused) synth.resume();
+    if (prev && (synth.speaking || synth.pending)) {
+      /* сразу после cancel браузеры часто молчат: даём паузу */
+      synth.cancel();
+      setTimeout(function(){ if (lastUtter === u) { synth.resume(); synth.speak(u); } }, 80);
+    } else {
+      synth.speak(u);
+    }
+  } catch(e){}
+}
+/* если голос «завис», сбрасываем очередь, чтобы следующие слова снова звучали */
+setInterval(function(){
+  var synth = window.speechSynthesis; if (!synth) return;
+  if (lastUtter && Date.now() - lastUtter._t > 8000) lastUtter = null;
+  if (!lastUtter && (synth.speaking || synth.pending)) synth.cancel();
+}, 4000);
+/* iPhone и iPad дают говорить только после касания: «будим» голос беззвучной фразой */
+var voiceUnlocked = false;
+function unlockVoice(){
+  if (voiceUnlocked || !window.speechSynthesis) return; voiceUnlocked = true;
+  try { var u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'zh-CN'; window.speechSynthesis.speak(u); } catch(e){}
+}
+document.addEventListener('pointerdown', unlockVoice, true);
+document.addEventListener('touchend', unlockVoice, true);
+function soundCheckHtml(){
+  return '<div class="soundrow"><button class="btn" id="snd-test">🔊 Проверить звук</button><p class="note" id="snd-note">Нажмите, должно прозвучать «你好».</p></div>';
+}
+function bindSoundCheck(){
+  var b = document.getElementById('snd-test'), n = document.getElementById('snd-note'); if (!b) return;
+  b.onclick = function(){
+    if (!window.speechSynthesis) { n.textContent = 'Этот браузер не умеет озвучивать. Откройте ссылку в Safari или Chrome.'; return; }
+    pickVoice(); say('你好', true);
+    var hasVoices = (window.speechSynthesis.getVoices() || []).length > 0;
+    n.textContent = (hasVoices && !zhVoice)
+      ? 'На устройстве не найден китайский голос. iPhone и iPad: Настройки, Универсальный доступ, Устный контент, Голоса, Китайский. Android: Настройки, Синтез речи, установить китайский язык.'
+      : 'Не слышно? Проверьте громкость и что не включён беззвучный режим (переключатель сбоку на iPhone и iPad).';
+  };
+}
+function soundBtn(){ return window.speechSynthesis ? '<button class="btn" id="g-sound" aria-pressed="'+(SOUND?'true':'false')+'" aria-label="Озвучка">'+(SOUND ? '🔊 Звук' : '🔇 Без звука')+'</button>' : ''; }
+
+/* ---------- Раунд ---------- */
+var round = null;
+var lessonSource = null; /* какой набор урока сейчас играется */
+function currentSource(){ return lessonSource || (sharedId ? 'shared' : st.settings.source); }
+function currentMode(){ return (lessonSource || sharedId) ? 'auto' : st.settings.mode; }
+function eligible(){
+  var mode = currentMode();
+  var pool = poolFor(currentSource());
+  if (mode === 'py-img' || mode === 'hz-img') pool = pool.filter(hasImg);
+  return pool;
+}
+/* Новые слова появляются, только когда текущие выучены.
+   Выучено = собрано без ошибок MASTER раундов подряд. */
+var MASTER = 2;
+var NEW_PER_ROUND = 2;
+function prog(w){ return st.progress[w.id] || null; }
+function isSeen(w){ var p = prog(w); return !!p && (p.seen||0) > 0; }
+function isMastered(w){ var p = prog(w); return !!p && (p.streak||0) >= MASTER; }
+function countMastered(list){ return list.filter(isMastered).length; }
+function buildRound(){
+  var mode = currentMode();
+  var pool = eligible();
+  var rnd = {}; pool.forEach(function(w){ rnd[w.id] = Math.random(); });
+  var byLast = function(a, b){ var pa = prog(a), pb = prog(b); return ((pa && pa.last) || 0) - ((pb && pb.last) || 0) || rnd[a.id] - rnd[b.id]; };
+  var learning = pool.filter(function(w){ return isSeen(w) && !isMastered(w); }).sort(byLast);
+  var fresh = pool.filter(function(w){ return !isSeen(w); });
+  var known = pool.filter(isMastered).sort(byLast);
+  var newLimit = pool.some(isSeen) ? NEW_PER_ROUND : PAIRS;
+  var used = {}, items = [];
+  function tryAdd(w, isNew){
+    if (items.length >= PAIRS) return false;
+    var keys = ['id:'+w.id, 'py:'+normPy(w.py), 'hz:'+w.hz]; if (w.emoji) keys.push('em:'+w.emoji); if (w.num) keys.push('num:'+w.num+(w.unit||''));
+    if (keys.some(function(k){ return used[k]; })) return false;
+    keys.forEach(function(k){ used[k] = 1; });
+    items.push({w:w, type:typeFor(w, mode), auto: mode === 'auto', isNew: !!isNew});
+    return true;
+  }
+  /* 1) то, что ещё учим; 2) немного новых; 3) повтор выученного; 4) если места осталось, ещё новые */
+  learning.forEach(function(w){ tryAdd(w); });
+  var added = 0;
+  fresh.forEach(function(w){ if (added < newLimit && tryAdd(w, true)) added++; });
+  known.forEach(function(w){ tryAdd(w); });
+  fresh.forEach(function(w){ tryAdd(w, true); });
+  var cards = [];
+  items.forEach(function(it){ PAIR_KINDS[it.type].forEach(function(k){ cards.push({wid:it.w.id, kind:k, w:it.w}); }); });
+  shuffle(cards);
+  return {items:items, cards:cards, score:0, errors:0, found:0, erred:{}, sel:-1, badTimer:null, bad:[], done:false};
+}
+
+function startGame(){
+  var pool = eligible();
+  if (!pool.length) { renderStart(true); return; }
+  round = buildRound();
+  renderGame();
+}
+
+function cardHtml(c, i){
+  var w = c.w, inner, label;
+  if (c.kind === 'hz') { inner = '<span class="face hz" style="--len:'+Math.max(1, Array.from(w.hz).length)+'">'+esc(w.hz)+'</span>'; label = w.hz; }
+  else if (c.kind === 'py') { inner = '<span class="face py" style="--len:'+Math.max(4, w.py.length)+'">'+esc(w.py)+'</span>'; label = w.py; }
+  else { inner = picHtml(w); label = 'картинка'; }
+  return '<button class="card" data-i="'+i+'" aria-label="'+esc(label)+'" aria-pressed="false">'+inner+'</button>';
+}
+
+function renderGame(){
+  screen = 'game'; app.classList.add('full');
+  var total = round.items.length;
+  app.innerHTML = '<div class="game">'+
+    '<div class="hud">'+
+      '<button class="btn" id="g-menu">Меню</button>'+soundBtn()+
+      '<div class="grow"></div>'+
+      '<div class="stat"><b id="g-found">0 из '+total+'</b><small>пары</small></div>'+
+      '<div class="stat"><b id="g-err">0</b><small>ошибки</small></div>'+
+      '<div class="stat score"><b id="g-score">0</b><small>очки</small></div>'+
+    '</div>'+
+    '<div class="board" id="board">'+round.cards.map(cardHtml).join('')+'</div>'+
+  '</div>';
+  document.getElementById('g-menu').onclick = function(){ clearBad(); round = null; route(); };
+  var sb = document.getElementById('g-sound');
+  if (sb) sb.onclick = function(){ SOUND = !SOUND; save('sound', SOUND); sb.setAttribute('aria-pressed', SOUND ? 'true' : 'false'); sb.textContent = SOUND ? '🔊 Звук' : '🔇 Без звука'; if (!SOUND && window.speechSynthesis) window.speechSynthesis.cancel(); };
+  var board = document.getElementById('board');
+  board.addEventListener('click', function(e){ var b = e.target.closest('.card'); if (b) tap(+b.dataset.i); });
+  fitBoard();
+}
+
+function fitBoard(){
+  var board = document.getElementById('board'); if (!board || !round) return;
+  var n = round.cards.length, gap = 10;
+  var W = board.clientWidth, H = board.clientHeight;
+  if (!W || !H) return;
+  var best = null;
+  for (var cols = 1; cols <= n; cols++) {
+    var rows = Math.ceil(n / cols);
+    var cw = (W - gap*(cols-1)) / cols, ch = (H - gap*(rows-1)) / rows;
+    if (cw <= 0 || ch <= 0) continue;
+    var ratio = cw / ch;
+    var score = Math.min(cw, ch * 1.3) - (rows*cols - n) * 6 - (ratio > 2 ? 40 : 0);
+    if (!best || score > best.score) best = {cols:cols, rows:rows, score:score};
+  }
+  if (best) { board.style.gridTemplateColumns = 'repeat('+best.cols+',minmax(0,1fr))'; board.style.gridTemplateRows = 'repeat('+best.rows+',minmax(0,1fr))'; }
+}
+window.addEventListener('resize', fitBoard);
+
+function cardEl(i){ return document.querySelector('.card[data-i="'+i+'"]'); }
+function clearBad(){
+  if (!round) return;
+  if (round.badTimer) { clearTimeout(round.badTimer); round.badTimer = null; }
+  round.bad.forEach(function(i){ var el = cardEl(i); if (el) el.classList.remove('bad'); });
+  round.bad = [];
+}
+function setScore(){
+  var s = document.getElementById('g-score'); s.textContent = round.score;
+  s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop');
+  document.getElementById('g-err').textContent = round.errors;
+  document.getElementById('g-found').textContent = round.found + ' из ' + round.items.length;
+}
+function tap(i){
+  if (!round || round.done) return;
+  var c = round.cards[i]; if (c.matched) return;
+  clearBad();
+  var el = cardEl(i);
+  if (round.sel === -1) { round.sel = i; el.classList.add('sel'); el.setAttribute('aria-pressed','true'); return; }
+  if (round.sel === i) { round.sel = -1; el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); return; }
+  var j = round.sel, other = round.cards[j], oel = cardEl(j);
+  round.sel = -1;
+  oel.classList.remove('sel'); oel.setAttribute('aria-pressed','false');
+  if (other.wid === c.wid) {
+    c.matched = other.matched = true;
+    round.score += 10; round.found++;
+    say(c.w.hz);
+    [el, oel].forEach(function(x){ x.classList.add('ok'); x.disabled = true; x.insertAdjacentHTML('beforeend','<span class="tick" aria-hidden="true">✓</span>'); setTimeout(function(){ x.classList.add('done'); }, 450); });
+    setScore();
+    if (round.found === round.items.length) { round.done = true; setTimeout(finishRound, 750); }
+  } else {
+    round.score -= 2; round.errors++;
+    round.erred[c.wid] = 1; round.erred[other.wid] = 1;
+    [el, oel].forEach(function(x){ x.classList.add('bad'); });
+    round.bad = [i, j];
+    round.badTimer = setTimeout(clearBad, 800);
+    setScore();
+  }
+}
+
+function finishRound(){
+  st.counter++; save('counter', st.counter);
+  round.items.forEach(function(it){
+    var p = st.progress[it.w.id] || {clean:0, seen:0, alt:0, streak:0};
+    var before = p.clean || 0, wasMastered = (p.streak||0) >= MASTER;
+    if (!round.erred[it.w.id]) { p.clean = before + 1; p.streak = (p.streak||0) + 1; }
+    else p.streak = 0;
+    p.seen = (p.seen||0) + 1; p.last = st.counter;
+    if (it.auto && before >= 2 && it.type !== 'py-img') p.alt = (p.alt||0) + 1;
+    it.levelUp = it.auto && hasImg(it.w) && before < 2 && (p.clean||0) >= 2;
+    it.justMastered = !wasMastered && p.streak >= MASTER;
+    st.progress[it.w.id] = p;
+  });
+  save('progress', st.progress);
+  renderEnd();
+}
+
+function renderEnd(){
+  screen = 'end'; app.classList.remove('full');
+  var r = round;
+  var rows = r.items.map(function(it){
+    var w = it.w;
+    var chip = r.erred[w.id] ? '<span class="chip bad">была ошибка</span>' : it.justMastered ? '<span class="chip ok">выучено</span>' : it.levelUp ? '<span class="chip">дальше с иероглифами</span>' : it.isNew ? '<span class="chip">новое</span>' : '';
+    return '<div class="row"><div class="thumb">'+(hasImg(w) ? picHtml(w) : '<span class="hz" style="font-size:20px">'+esc(Array.from(w.hz)[0])+'</span>')+'</div>'+
+      '<div class="t"><span class="hz">'+esc(w.hz)+'</span><span><span class="py">'+esc(w.py)+'</span>'+(w.ru ? ', '+esc(w.ru) : '')+'</span></div>'+chip+
+      (window.speechSynthesis ? '<button class="btn play" data-say="'+esc(w.hz)+'" aria-label="Послушать '+esc(w.hz)+'">▶</button>' : '')+'</div>';
+  }).join('');
+  app.innerHTML = '<div class="wrap">'+
+    '<h1>Все пары найдены</h1>'+
+    '<div class="result"><div><b>'+r.score+'</b><small>очки</small></div><div><b>'+r.errors+'</b><small>'+plural(r.errors,'ошибка','ошибки','ошибок')+'</small></div></div>'+
+    '<div class="group"><div class="label">Слова этого раунда</div><div class="list">'+rows+'</div></div>'+
+    '<div class="cta"><button class="btn primary big" id="e-next">Следующий раунд</button></div>'+
+    '<button class="btn ghost" id="e-menu">В меню</button>'+
+  '</div>';
+  document.getElementById('e-next').onclick = startGame;
+  app.querySelectorAll('[data-say]').forEach(function(b){ b.onclick = function(){ say(b.dataset.say, true); }; });
+  document.getElementById('e-menu').onclick = function(){ round = null; route(); };
+  window.scrollTo(0,0);
+  document.getElementById('e-next').focus({preventScroll:true});
+}
+
+/* ---------- Стартовый экран ---------- */
+function choice(group, value, title, sub, on){
+  return '<button class="choice" role="radio" aria-checked="'+(on?'true':'false')+'" data-g="'+group+'" data-v="'+value+'"><b>'+title+'</b><small>'+sub+'</small></button>';
+}
+function countWords(n){ return n + ' ' + plural(n, 'слово', 'слова', 'слов'); }
+function renderStart(emptyWarn){
+  screen = 'start'; app.classList.remove('full');
+  var s = st.settings;
+  var mine = st.words.length, mineImg = st.words.filter(hasImg).length;
+  var warn = '';
+  if (emptyWarn) {
+    warn = (s.mode === 'py-img' || s.mode === 'hz-img')
+      ? '<div class="warn">В этом наборе нет слов с картинками. Выберите другой тип пар или добавьте картинки в «Мои слова».</div>'
+      : '<div class="warn">В этом наборе пока нет слов. Добавьте их в «Мои слова» или выберите HSK 1.</div>';
+  }
+  app.innerHTML = '<div class="wrap">'+
+    '<div class="topbar"><div class="brand"><span class="seal">对</span>Китайские пары</div><button class="btn" id="s-words">Мои слова</button></div>'+
+    '<div class="hero"><div><h1>Найдите пары</h1><p>Нажмите на две карточки, которые означают одно и то же: пиньинь, иероглифы или картинку.</p></div>'+
+      '<div class="fan" aria-hidden="true"><span>📺</span><span class="py">kàn</span><span class="hz">看</span></div></div>'+
+    '<div class="group" role="radiogroup" aria-label="Набор слов"><div class="label">Набор слов</div><div class="choices">'+
+      choice('source','hsk1','HSK 1, набор 1', countWords(HSK_PARTS.hsk1.length) + ', выучено ' + countMastered(HSK_PARTS.hsk1), s.source==='hsk1')+
+      choice('source','hsk2','HSK 1, набор 2', countWords(HSK_PARTS.hsk2.length) + ', выучено ' + countMastered(HSK_PARTS.hsk2), s.source==='hsk2')+
+      choice('source','hsk3','HSK 1, набор 3', countWords(HSK_PARTS.hsk3.length) + ', выучено ' + countMastered(HSK_PARTS.hsk3), s.source==='hsk3')+
+      choice('source','mine','Мои слова', countWords(mine) + (mine ? ', выучено ' + countMastered(st.words) : ''), s.source==='mine')+
+      choice('source','both','Все слова', 'весь HSK 1 и мои слова', s.source==='both')+
+    '</div></div>'+
+    '<div class="group" role="radiogroup" aria-label="Тип пар"><div class="label">Тип пар</div><div class="choices">'+
+      choice('mode','auto','Авто','сложность растёт по каждому слову', s.mode==='auto')+
+      choice('mode','py-img','Пиньинь + картинка','только слова с картинками', s.mode==='py-img')+
+      choice('mode','hz-img','Иероглифы + картинка','только слова с картинками', s.mode==='hz-img')+
+      choice('mode','py-hz','Пиньинь + иероглифы','все слова набора', s.mode==='py-hz')+
+    '</div></div>'+
+    warn+
+    '<p class="note">Новые слова добавляются по два, когда прошлые собраны без ошибок два раунда подряд.</p>'+
+    '<div class="group"><div class="label">Уроки</div><div class="acts-grid"><button class="act" id="s-lesson-shop"><span class="tag">Урок</span><b>Магазин и числа</b><small>Числа 0-999, этажи, цены на слух, слова для магазина. Здесь же ссылка для ученицы.</small></button></div></div>'+
+    soundCheckHtml()+
+    '<div class="cta"><button class="btn primary big" id="s-start">Начать игру</button></div>'+
+  '</div>';
+  app.querySelectorAll('.choice').forEach(function(b){ b.onclick = function(){ st.settings[b.dataset.g] = b.dataset.v; save('settings', st.settings); renderStart(false); var nb = app.querySelector('.choice[data-g="'+b.dataset.g+'"][data-v="'+b.dataset.v+'"]'); if (nb) nb.focus({preventScroll:true}); }; });
+  document.getElementById('s-start').onclick = startGame;
+  document.getElementById('s-words').onclick = function(){ renderEditor(); };
+  document.getElementById('s-lesson-shop').onclick = function(){ teacherNav = true; lessonId = 'shop'; try { history.replaceState(null, '', '#lesson=shop'); } catch(e){} route(); };
+  bindSoundCheck();
+}
+
+/* ---------- Домашнее задание по ссылке ---------- */
+function renderShared(){
+  screen = 'shared'; app.classList.remove('full');
+  var set = SHARED_SET;
+  if (!set) {
+    app.innerHTML = '<div class="wrap homework"><span class="eyebrow">Домашнее задание</span><h1>Ссылка не открылась</h1><p class="note">Похоже, ссылка скопировалась не целиком. Попросите преподавателя прислать её ещё раз.</p><button class="btn" id="h-home">Открыть игру</button></div>';
+    document.getElementById('h-home').onclick = function(){ goHome(); };
+    return;
+  }
+  var n = set.words.length;
+  app.innerHTML = '<div class="wrap homework">'+
+    '<div class="brand"><span class="seal">对</span>Китайские пары</div>'+
+    '<span class="eyebrow">Домашнее задание</span>'+
+    '<h1>'+esc(set.title)+'</h1>'+
+    '<p class="note">'+n+' '+plural(n,'слово или фраза','слова и фразы','слов и фраз')+'. Нажмите на две карточки, которые означают одно и то же. Регистрация не нужна.</p>'+
+    '<button class="btn primary big" id="h-start">Начать игру</button>'+
+  '</div>';
+  document.getElementById('h-start').onclick = startGame;
+}
+function goHome(){ sharedId = null; try { history.replaceState(null, '', location.pathname + location.search); } catch(e){ location.hash = ''; } route(); }
+
+/* ---------- Редактор «Мои слова» ---------- */
+var ed = {editId:null, img:'', emoji:'', imgSrc:'', sel:{}, armed:null, armedSet:null};
+function resetForm(){ ed.editId = null; ed.img = ''; ed.emoji = ''; ed.imgSrc = ''; ed.draft = null; ed.auto = null; ed.lastHz = ''; ed.autoState = ''; ed.drawState = ''; ed.token = (ed.token||0) + 1; ed.drawToken = (ed.drawToken||0) + 1; clearTimeout(ed.autoTimer); }
+function renderEditor(){
+  screen = 'editor'; app.classList.remove('full');
+  var editing = ed.editId ? st.words.find(function(w){ return w.id === ed.editId; }) : null;
+  var f = editing || {hz:'', py:'', ru:''};
+  var selCount = Object.keys(ed.sel).filter(function(k){ return ed.sel[k] && st.words.some(function(w){ return w.id === k; }); }).length;
+  var list = st.words.map(function(w){
+    var armed = ed.armed === w.id;
+    return '<div class="row">'+
+      '<input type="checkbox" class="check" id="c-'+esc(w.id)+'" data-id="'+esc(w.id)+'" '+(ed.sel[w.id]?'checked':'')+' aria-label="Выбрать '+esc(w.hz)+'">'+
+      '<div class="thumb">'+(hasImg(w) ? picHtml(w) : '')+'</div>'+
+      '<label class="t" for="c-'+esc(w.id)+'"><span class="hz">'+esc(w.hz)+'</span><span><span class="py">'+esc(w.py)+'</span>'+(w.ru ? ', '+esc(w.ru) : '')+'</span></label>'+
+      '<div class="acts"><button class="btn" data-edit="'+esc(w.id)+'">Изменить</button><button class="btn danger'+(armed?' armed':'')+'" data-del="'+esc(w.id)+'">'+(armed?'Точно удалить?':'Удалить')+'</button></div>'+
+    '</div>';
+  }).join('');
+  var sent = load('sent', []);
+  var sets = sent.map(function(x){ return [x.id, x]; });
+  var setsHtml = sets.length ? '<div class="group"><div class="label">Отправленные наборы</div><div class="list">'+sets.map(function(p){
+      var id = p[0], s = p[1], armed = ed.armedSet === id;
+      return '<div class="row"><div class="t"><b>'+esc(s.title)+'</b><span>'+countWords(s.count)+'</span></div><div class="acts"><button class="btn" data-link="'+id+'">Ссылка</button><button class="btn danger'+(armed?' armed':'')+'" data-delset="'+id+'">'+(armed?'Убрать из списка?':'Убрать')+'</button></div></div>';
+    }).join('')+'</div></div>' : '';
+  var shareBar = selCount ? '<div class="sharebar"><div class="panel"><span><b>Выбрано: '+selCount+'</b></span><button class="btn primary" id="w-share">Поделиться набором</button></div></div>' : '';
+  app.innerHTML = '<div class="wrap">'+
+    '<div class="topbar"><button class="btn" id="w-back">← К игре</button><div class="brand"><span class="seal">对</span>Мои слова</div></div>'+
+    '<form class="panel" id="w-form" novalidate>'+
+      '<h3 style="font-size:17px">'+(editing ? 'Изменить карточку' : 'Новая карточка')+'</h3>'+
+      '<div class="field"><label for="w-hz">Иероглифы</label><input type="text" class="hz" id="w-hz" value="'+esc(f.hz)+'" placeholder="看电视" autocomplete="off"><div class="autoline" id="w-auto"></div></div>'+
+      '<div class="field"><label for="w-py">Пиньинь с тонами</label><input type="text" class="py" id="w-py" value="'+esc(f.py)+'" placeholder="kàn diànshì" autocomplete="off" autocapitalize="off" spellcheck="false"><small>Подставится сам, как только вы напишете иероглифы. Можно и вручную, цифрами: kan4 dian4shi4.</small></div>'+
+      '<div class="field"><label for="w-ru">Перевод на русский</label><input type="text" id="w-ru" value="'+esc(f.ru)+'" placeholder="смотреть телевизор" autocomplete="off"><small>На игровом поле перевод не показывается.</small></div>'+
+      '<div class="field"><span style="font-size:14px;font-weight:600">Картинка</span><div class="imgpick" id="w-pic"></div><div class="autoline" id="w-picnote"></div></div>'+
+      '<div class="formacts"><button type="submit" class="btn primary">'+(editing ? 'Сохранить' : 'Добавить карточку')+'</button>'+(editing ? '<button type="button" class="btn" id="w-cancel">Отмена</button>' : '')+'</div>'+
+    '</form>'+
+    '<div class="group"><div class="label">Карточки, '+st.words.length+'</div>'+
+      (st.words.length ? '<p class="note">Отметьте слова галочкой, чтобы отправить их ученику по ссылке.</p><div class="list">'+list+'</div>' : '<p class="note">Пока пусто. Добавьте первую карточку в форме выше.</p>')+
+    '</div>'+
+    setsHtml+
+    shareBar+
+  '</div>';
+  bindEditor();
+}
+function bindEditor(){
+  document.getElementById('w-back').onclick = function(){ resetForm(); route(); };
+  var py = document.getElementById('w-py');
+  py.addEventListener('blur', function(){ if (/[1-5]/.test(py.value)) py.value = numToMarks(py.value); });
+  renderPic();
+  var hzIn = document.getElementById('w-hz');
+  hzIn.addEventListener('input', readHzLater);
+  hzIn.addEventListener('blur', function(){ clearTimeout(ed.autoTimer); autoFill(); });
+  setAutoLine();
+  var cancel = document.getElementById('w-cancel'); if (cancel) cancel.onclick = function(){ resetForm(); renderEditor(); };
+  document.getElementById('w-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var hz = document.getElementById('w-hz').value.trim();
+    var pyv = numToMarks(document.getElementById('w-py').value.trim());
+    var ru = document.getElementById('w-ru').value.trim();
+    if (!hz || !pyv) { toast('Заполните иероглифы и пиньинь.'); return; }
+    var prev = st.words.slice();
+    if (ed.editId) {
+      st.words = st.words.map(function(w){ return w.id === ed.editId ? Object.assign({}, w, {hz:hz, py:pyv, ru:ru, img:ed.img, emoji:ed.img ? '' : ed.emoji}) : w; });
+    } else {
+      st.words = [{id:'m:'+rid(), hz:hz, py:pyv, ru:ru, img:ed.img, emoji:ed.img ? '' : ed.emoji}].concat(st.words);
+    }
+    if (!save('words', st.words)) { st.words = prev; toast('Не хватает места в памяти браузера. Удалите ненужные карточки или возьмите картинку поменьше.'); return; }
+    toast(ed.editId ? 'Карточка сохранена' : 'Карточка добавлена');
+    resetForm();
+    renderEditor();
+  });
+  if (ed.draft) { ['hz','py','ru'].forEach(function(k){ document.getElementById('w-'+k).value = ed.draft[k]; }); ed.draft = null; }
+  app.querySelectorAll('.check').forEach(function(c){ c.onchange = function(){ ed.sel[c.dataset.id] = c.checked; keepForm(); renderEditor(); }; });
+  app.querySelectorAll('[data-edit]').forEach(function(b){ b.onclick = function(){ var w = st.words.find(function(x){ return x.id === b.dataset.edit; }); resetForm(); ed.editId = w.id; ed.img = w.img || ''; ed.emoji = w.emoji || ''; ed.auto = {py:w.py, ru:w.ru}; renderEditor(); window.scrollTo({top:0, behavior:'smooth'}); }; });
+  app.querySelectorAll('[data-del]').forEach(function(b){ b.onclick = function(){
+    var id = b.dataset.del;
+    if (ed.armed !== id) { ed.armed = id; keepForm(); renderEditor(); setTimeout(function(){ if (ed.armed === id && screen === 'editor') { ed.armed = null; keepForm(); renderEditor(); } }, 4000); return; }
+    ed.armed = null; st.words = st.words.filter(function(w){ return w.id !== id; }); delete ed.sel[id];
+    if (/^m:(x|seed)-/.test(id)) { var rm = load('removed', []); if (rm.indexOf(id) < 0) { rm.push(id); save('removed', rm); } }
+    if (ed.editId === id) resetForm();
+    save('words', st.words); keepForm(); renderEditor(); toast('Карточка удалена');
+  }; });
+  app.querySelectorAll('[data-link]').forEach(function(b){ b.onclick = function(){ showLink(b.dataset.link); }; });
+  app.querySelectorAll('[data-delset]').forEach(function(b){ b.onclick = function(){
+    var id = b.dataset.delset;
+    if (ed.armedSet !== id) { ed.armedSet = id; keepForm(); renderEditor(); return; }
+    ed.armedSet = null;
+    save('sent', load('sent', []).filter(function(x){ return x.id !== id; }));
+    keepForm(); renderEditor(); toast('Убрано из списка. Ссылка у ученика продолжит работать.');
+  }; });
+  var sh = document.getElementById('w-share'); if (sh) sh.onclick = openShareDialog;
+}
+function keepForm(){
+  var hz = document.getElementById('w-hz'); if (!hz) return;
+  ed.draft = {hz:hz.value, py:document.getElementById('w-py').value, ru:document.getElementById('w-ru').value};
+}
+function readImage(file){
+  return new Promise(function(res, rej){
+    var url = URL.createObjectURL(file), im = new Image();
+    im.onload = function(){
+      var max = 360, w = im.naturalWidth, h = im.naturalHeight;
+      if (!w || !h) { URL.revokeObjectURL(url); rej(new Error('size')); return; }
+      var k = Math.min(1, max / Math.max(w, h)); w = Math.round(w*k); h = Math.round(h*k);
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var x = c.getContext('2d'); x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      try { res(c.toDataURL('image/jpeg', 0.82)); } catch(e){ rej(e); }
+    };
+    im.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('load')); };
+    im.src = url;
+  });
+}
+
+/* ---------- Картинка в форме ---------- */
+function renderPic(){
+  var box = document.getElementById('w-pic'); if (!box) return;
+  var pic = ed.img ? '<img src="'+esc(ed.img)+'" alt="">' : (ed.emoji ? '<span class="emo">'+esc(ed.emoji)+'</span>' : '');
+  var has = !!(ed.img || ed.emoji);
+  box.innerHTML = '<div class="thumb">'+pic+'</div>'+
+    '<input type="file" accept="image/*" id="w-file" class="vh"><label for="w-file" class="btn">'+(has ? 'Заменить' : 'Выбрать картинку')+'</label>'+
+    (has ? '<button type="button" class="btn ghost" id="w-noimg">Убрать</button>' : '');
+  document.getElementById('w-file').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0]; if (!file) return;
+    readImage(file).then(function(url){ ed.img = url; ed.emoji = ''; renderPic(); }).catch(function(){ toast('Эту картинку не получилось открыть. Попробуйте другую, например JPG или PNG.'); });
+  });
+  var nb = document.getElementById('w-noimg'); if (nb) nb.onclick = function(){ ed.img = ''; ed.emoji = ''; renderPic(); };
+}
+
+/* ---------- Пиньинь сам, сразу (без интернета и ожидания) ---------- */
+var CJK = /[㐀-鿿豈-﫿]/;
+var KNOWN = {}; HSK.concat(SEED, EXTRA).forEach(function(w){ if (!KNOWN[w.hz]) KNOWN[w.hz] = w; });
+var LEX = {}; Object.keys(KNOWN).forEach(function(k){ if (Array.from(k).length >= 2) LEX[k] = 1; });
+'一起 音乐 动漫 学习 汉语 中文 篮球 足球 手机 跑步 游泳 唱歌 跳舞 画画 上班 下班 起床 洗澡 刷牙 早饭 午饭 晚饭 咖啡 牛奶 面包 鸡蛋 公园 超市 银行 地铁 公共汽车 自行车 周末 晚上 早上 时间 问题 知道 觉得 可以 应该 已经 还是 但是 因为 所以 如果 一定 开始 结束 准备 帮助 告诉 介绍 运动 旅游 休息 散步 购物 聊天 上网 电脑 游戏 小说 杂志 照片 音乐会 电影院 图书馆 生日 礼物 快乐 漂亮 可爱 有意思 好吃 好看 便宜 容易 难过 担心 喜欢 希望 一下 一点 上课 下课 作业 考试 老师 同学 家人 爸爸 妈妈 哥哥 姐姐 弟弟 妹妹 孩子 丈夫 妻子 身体 锻炼 动物 东西 地方 房间 衣服 鞋子 眼睛 头发 天气 下雪 刮风 太阳 月亮 春天 夏天 秋天 冬天'.split(' ').forEach(function(k){ LEX[k] = 1; });
+function setAutoLine(){
+  var el = document.getElementById('w-auto'); if (!el) return;
+  el.textContent = ed.autoState || '';
+}
+function makePinyin(hz){
+  var known = KNOWN[hz]; if (known) return known.py;
+  var P = window.pinyinPro; if (!P || !P.pinyin) return '';
+  var parts = [];
+  hz.split(/[\s,，。.!！?？、]+/).filter(Boolean).forEach(function(chunk){
+    var toks;
+    try { toks = P.segment(chunk).map(function(t){ return {hz:t.origin, py:t.result}; }); }
+    catch(e){ toks = Array.from(chunk).map(function(c, k){ return {hz:c, py:P.pinyin(chunk, {type:'array'})[k] || ''}; }); }
+    /* склеиваем соседние иероглифы, если вместе это известное слово */
+    var out = [];
+    toks.forEach(function(t){
+      var last = out[out.length - 1];
+      if (last && LEX[last.hz + t.hz] && Array.from(last.hz + t.hz).length <= 4) { last.hz += t.hz; last.py += t.py; }
+      else out.push({hz:t.hz, py:t.py});
+    });
+    out.forEach(function(t){ parts.push(t.py); });
+  });
+  return parts.join(' ');
+}
+function autoFill(){
+  var hzEl = document.getElementById('w-hz'); if (!hzEl) return;
+  var hz = hzEl.value.trim();
+  var pyEl = document.getElementById('w-py'), ruEl = document.getElementById('w-ru');
+  if (!hz) { ed.autoState = ''; setAutoLine(); return; }
+  if (!CJK.test(hz)) { ed.autoState = 'В это поле пишутся иероглифы, например 迟到. Перевод на русский - в поле ниже.'; setAutoLine(); return; }
+  var prev = ed.auto || {};
+  var py = makePinyin(hz);
+  if (!py) { ed.autoState = 'Пиньинь не подставился, впишите его вручную.'; setAutoLine(); return; }
+  if (!pyEl.value.trim() || pyEl.value === prev.py) pyEl.value = py;
+  var known = KNOWN[hz], ru = known ? known.ru : '';
+  if (ru && (!ruEl.value.trim() || ruEl.value === prev.ru)) ruEl.value = ru;
+  if (known && !ed.img && !ed.emoji) { ed.img = known.img || ''; ed.emoji = known.emoji || ''; renderPic(); }
+  ed.auto = {py:py, ru:ru};
+  ed.autoState = 'Пиньинь подставлен, проверьте тоны.' + (ru ? '' : ' Перевод впишите сами.');
+  setAutoLine();
+}
+function readHzLater(){ clearTimeout(ed.autoTimer); ed.autoTimer = setTimeout(autoFill, 250); }
+
+/* ---------- Поделиться набором: всё содержимое набора лежит в самой ссылке ---------- */
+function today(){ var d = new Date(); return d.toLocaleDateString('ru-RU', {day:'numeric', month:'long'}); }
+function b64u(bytes){ var s = ''; for (var i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function unb64u(str){ str = str.replace(/-/g,'+').replace(/_/g,'/'); while (str.length % 4) str += '='; var bin = atob(str), out = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
+function streamBytes(bytes, tr){ return new Response(new Blob([bytes]).stream().pipeThrough(tr)).arrayBuffer().then(function(b){ return new Uint8Array(b); }); }
+function packSet(obj){
+  var raw = new TextEncoder().encode(JSON.stringify(obj));
+  if (window.CompressionStream) return streamBytes(raw, new CompressionStream('deflate-raw')).then(function(b){ return 'z' + b64u(b); });
+  return Promise.resolve('j' + b64u(raw));
+}
+function unpackSet(str){
+  var kind = str.charAt(0), bytes = unb64u(str.slice(1));
+  var p = kind === 'z' ? streamBytes(bytes, new DecompressionStream('deflate-raw')) : Promise.resolve(bytes);
+  return p.then(function(b){ return JSON.parse(new TextDecoder().decode(b)); });
+}
+function smallImage(url){
+  /* для ссылки картинку уменьшаем, чтобы ссылка осталась короткой */
+  if (!url || /^data:image\/svg/.test(url)) return Promise.resolve(url || '');
+  return new Promise(function(res){
+    var im = new Image();
+    im.onload = function(){
+      var max = 140, w = im.naturalWidth, h = im.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+      w = Math.round(w*k); h = Math.round(h*k);
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var x = c.getContext('2d'); x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+      try { res(c.toDataURL('image/jpeg', 0.62)); } catch(e){ res(url); }
+    };
+    im.onerror = function(){ res(url); };
+    im.src = url;
+  });
+}
+function wordForLink(w){
+  var b = BUILTIN[w.id];
+  if (b && b.hz === w.hz && b.py === w.py && b.ru === w.ru && (b.img || '') === (w.img || '')) return Promise.resolve(w.id.slice(2));
+  return smallImage(w.img).then(function(img){ return [w.id.slice(2), w.hz, w.py, w.ru || '', img || '', w.emoji || '']; });
+}
+function wordFromLink(x){
+  if (typeof x === 'string') return BUILTIN['m:' + x] || null;
+  if (!Array.isArray(x) || !x[1] || !x[2]) return null;
+  return {id:'m:' + x[0], hz:x[1], py:x[2], ru:x[3] || '', img:x[4] || '', emoji:x[5] || ''};
+}
+function baseUrl(){ return location.origin + location.pathname; }
+function openShareDialog(){
+  keepForm();
+  var ids = st.words.filter(function(w){ return ed.sel[w.id]; });
+  var m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = '<form class="panel" id="sh-form" novalidate><h3 style="font-size:18px">Поделиться набором</h3>'+
+    '<p class="note">'+countWords(ids.length)+': '+ids.map(function(w){ return '<span class="hz">'+esc(w.hz)+'</span>'; }).join(', ')+'</p>'+
+    '<div class="field"><label for="sh-title">Название для ученика</label><input type="text" id="sh-title" value="'+esc('Домашнее задание, '+today())+'"></div>'+
+    '<div class="formacts"><button type="submit" class="btn primary" id="sh-go">Создать ссылку</button><button type="button" class="btn" id="sh-cancel">Отмена</button></div></form>';
+  document.body.appendChild(m);
+  var close = function(){ m.remove(); };
+  m.addEventListener('click', function(e){ if (e.target === m) close(); });
+  document.getElementById('sh-cancel').onclick = close;
+  document.getElementById('sh-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var title = document.getElementById('sh-title').value.trim() || 'Домашнее задание';
+    var go = document.getElementById('sh-go'); go.disabled = true; go.textContent = 'Создаём ссылку…';
+    Promise.all(ids.map(wordForLink)).then(function(words){ return packSet({t:title, w:words}); }).then(function(payload){
+      var link = baseUrl() + '#hw=' + payload;
+      var item = {id:rid(), title:title, count:ids.length, link:link, created:Date.now()};
+      var sent = load('sent', []); sent.unshift(item);
+      if (!save('sent', sent)) { sent.pop(); save('sent', sent.slice(0, 20)); }
+      close(); ed.sel = {}; renderEditor(); showLink(item);
+    }).catch(function(){ go.disabled = false; go.textContent = 'Создать ссылку'; toast('Не получилось создать ссылку. Попробуйте ещё раз.'); });
+  });
+}
+function showLink(item){
+  if (typeof item === 'string') item = load('sent', []).find(function(x){ return x.id === item; });
+  if (!item) return;
+  var link = item.link;
+  var m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = '<div class="panel"><h3 style="font-size:18px">Ссылка готова</h3>'+
+    '<p class="note">«'+esc(item.title)+'», '+countWords(item.count)+'. Отправьте ссылку ученику: игра откроется сразу в Safari или Chrome, без входа и регистрации.</p>'+
+    '<div class="linkbox"><input type="text" id="lk" readonly value="'+esc(link)+'" aria-label="Ссылка на набор"><button class="btn primary" id="lk-copy">Скопировать</button>'+
+    (navigator.share ? '<button class="btn" id="lk-send">Отправить</button>' : '')+'</div>'+
+    (link.length > 6000 ? '<p class="note">Ссылка длинная из-за своих картинок. Если мессенджер её обрежет, отправьте набор частями.</p>' : '')+
+    '<div class="formacts"><button class="btn" id="lk-close">Готово</button></div></div>';
+  document.body.appendChild(m);
+  var close = function(){ m.remove(); };
+  m.addEventListener('click', function(e){ if (e.target === m) close(); });
+  document.getElementById('lk-close').onclick = close;
+  var cp = document.getElementById('lk-copy');
+  cp.onclick = function(){
+    var inp = document.getElementById('lk');
+    var fallback = function(){ inp.focus(); inp.select(); inp.setSelectionRange(0, inp.value.length); toast('Ссылка выделена, скопируйте её'); };
+    try { navigator.clipboard.writeText(link).then(function(){ cp.textContent = 'Скопировано'; }, fallback); } catch(e){ fallback(); }
+  };
+  var sd = document.getElementById('lk-send');
+  if (sd) sd.onclick = function(){ navigator.share({title:item.title, text:'Домашнее задание по китайскому: ' + item.title, url:link}).catch(function(){}); };
+}
+
+var toastTimer = null;
+function toast(msg){
+  var t = document.querySelector('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
+  t.textContent = msg;
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.remove(); }, 3600);
+}
+
+/* ---------- Урок «Магазин и числа» ---------- */
+var LESSONS = {
+  shop: {title:'Магазин и числа', items:[
+    {kind:'pairs', src:'nums', title:'Числа 0-999', sub:'Сначала пиньинь и число, потом понемногу иероглифы'},
+    {kind:'pairs', src:'floors', title:'Этажи', sub:'3 этаж, sān lóu, 三楼'},
+    {kind:'pairs', src:'shop', title:'Слова урока', sub:'多少钱, 这个, 那个, 几个, 要, 不要, 付钱, 美女, 等一下 и местоимения'},
+    {kind:'quiz', q:'listen-num', title:'На слух: число', sub:'Прозвучит число, выберите его'},
+    {kind:'quiz', q:'listen-price', title:'На слух: цена', sub:'Продавец называет цену, выберите сумму'},
+    {kind:'quiz', q:'listen-floor', title:'На слух: этаж', sub:'你住几楼？ Выберите этаж из ответа'},
+    {kind:'quiz', q:'read-num', title:'Число иероглифами', sub:'Видите число, выберите, как оно пишется'}
+  ]}
+};
+var lessonId = null, teacherNav = false;
+function readLesson(){ var m = /^#lesson=([a-z0-9-]+)$/.exec(location.hash || ''); return m && LESSONS[m[1]] ? m[1] : null; }
+function lessonLink(id){ return location.origin + location.pathname + '#lesson=' + id; }
+function renderLesson(){
+  screen = 'lesson'; app.classList.remove('full'); lessonSource = null;
+  var L = LESSONS[lessonId];
+  var acts = L.items.map(function(it, i){
+    var extra = it.kind === 'pairs' ? 'Пары, выучено ' + countMastered(POOLS[it.src]) + ' из ' + POOLS[it.src].length : 'На 10 вопросов';
+    return '<button class="act" data-i="'+i+'"><span class="tag">'+extra+'</span><b>'+esc(it.title)+'</b><small>'+esc(it.sub)+'</small></button>';
+  }).join('');
+  app.innerHTML = '<div class="wrap">'+
+    '<div class="topbar"><div class="brand"><span class="seal">对</span>Китайские пары</div>'+(teacherNav ? '<button class="btn" id="l-home">Все наборы</button>' : '')+'</div>'+
+    '<div><div class="label">Урок</div><h1 style="font-size:clamp(26px,6vw,38px)">'+esc(L.title)+'</h1></div>'+
+    soundCheckHtml()+
+    '<div class="acts-grid">'+acts+'</div>'+
+    (teacherNav ? '<div class="panel"><b>Ссылка для ученицы</b><p class="note">Откроется сразу этот урок, без регистрации. Прогресс сохранится у неё на устройстве.</p><div class="linkbox"><input type="text" id="lk" readonly value="'+esc(lessonLink(lessonId))+'" aria-label="Ссылка на урок"><button class="btn primary" id="lk-copy">Скопировать</button>'+(navigator.share ? '<button class="btn" id="lk-send">Отправить</button>' : '')+'</div></div>' : '')+
+  '</div>';
+  bindSoundCheck();
+  app.querySelectorAll('.act').forEach(function(b){ b.onclick = function(){
+    var it = L.items[+b.dataset.i];
+    unlockVoice();
+    if (it.kind === 'pairs') { lessonSource = it.src; startGame(); }
+    else startQuiz(it);
+  }; });
+  var h = document.getElementById('l-home'); if (h) h.onclick = function(){ teacherNav = false; lessonId = null; goHome(); };
+  var cp = document.getElementById('lk-copy');
+  if (cp) cp.onclick = function(){
+    var inp = document.getElementById('lk'), link = inp.value;
+    var fallback = function(){ inp.focus(); inp.select(); inp.setSelectionRange(0, inp.value.length); toast('Ссылка выделена, скопируйте её'); };
+    try { navigator.clipboard.writeText(link).then(function(){ cp.textContent = 'Скопировано'; }, fallback); } catch(e){ fallback(); }
+  };
+  var sd = document.getElementById('lk-send');
+  if (sd) sd.onclick = function(){ navigator.share({title:L.title, text:'Урок по китайскому: ' + L.title, url:lessonLink(lessonId)}).catch(function(){}); };
+  window.scrollTo(0, 0);
+}
+
+/* ---------- Задания с вариантами ответа ---------- */
+var quiz = null;
+var QUIZ_LEN = 10;
+function rndInt(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+function pickNum(kind){
+  var r = Math.random();
+  if (kind === 'floor') return rndInt(1, 33);
+  if (kind === 'price') return r < .4 ? rndInt(1, 20) : r < .75 ? rndInt(21, 99) : rndInt(100, 999);
+  return r < .3 ? rndInt(0, 20) : r < .6 ? rndInt(21, 99) : rndInt(100, 999);
+}
+/* похожие числа: 3 / 13 / 30 / 300, перестановка цифр, соседние */
+function distractors(n, min, max){
+  var s = String(n), c = [];
+  c.push(n < 10 ? n * 10 : null, n < 10 ? 10 + n : null, (n >= 11 && n <= 19) ? (n % 10) * 10 : null, (n >= 20 && n < 100 && n % 10 === 0) ? 10 + n / 10 : null);
+  if (s.length > 1) c.push(Number(s.split('').reverse().join('')));
+  c.push(n * 10, Math.floor(n / 10), n < 100 ? n * 100 : null);
+  for (var i = 0; i < s.length; i++) { var d = +s[i]; [d + 1, d - 1].forEach(function(x){ if (x >= 0 && x <= 9 && !(i === 0 && x === 0 && s.length > 1)) c.push(Number(s.slice(0, i) + x + s.slice(i + 1))); }); }
+  c.push(n + 10, n - 10, n + 1, n - 1);
+  var seen = {}, list = []; seen[n] = 1;
+  c.forEach(function(x){ if (x != null && !isNaN(x) && x >= min && x <= max && !seen[x]) { seen[x] = 1; list.push(x); } });
+  var top = shuffle(list.slice(0, 5)), out = top.slice(0, 2);
+  var rest = shuffle(list.slice(2).filter(function(x){ return out.indexOf(x) < 0; }));
+  while (out.length < 3 && rest.length) out.push(rest.shift());
+  while (out.length < 3) { var v = rndInt(min, max); if (!seen[v] && out.indexOf(v) < 0) out.push(v); }
+  return out;
+}
+function makeQuestion(kind){
+  var q = {kind:kind};
+  if (kind === 'listen-num' || kind === 'read-num') {
+    var n = pickNum(), x = numInfo(n);
+    q.answer = n; q.opts = shuffle([n].concat(distractors(n, 0, 999)));
+    q.speech = x.hz; q.reveal = '<span class="hz">'+x.hz+'</span><br><span class="py">'+x.py+'</span>';
+    if (kind === 'listen-num') { q.ask = 'Какое число прозвучало?'; q.label = function(v){ return String(v); }; q.listen = true; }
+    else { q.ask = 'Как это число пишется иероглифами?'; q.big = String(n); q.label = function(v){ return numInfo(v).hz; }; q.hzOpts = true; }
+  } else if (kind === 'listen-price') {
+    var p = pickNum('price'), px = numInfo(p, true), pre = Math.random() < .35, qian = Math.random() < .65;
+    q.answer = p; q.opts = shuffle([p].concat(distractors(p, 1, 999)));
+    q.speech = (pre ? '这个' : '') + px.hz + '块' + (qian ? '钱' : '');
+    q.reveal = '<span class="hz">'+q.speech+'</span><br><span class="py">'+(pre ? 'zhège ' : '')+px.py+' kuài'+(qian ? ' qián' : '')+'</span>';
+    q.ask = 'Продавец называет цену. Сколько это стоит?'; q.label = function(v){ return '¥' + v; }; q.listen = true;
+  } else {
+    var f = pickNum('floor'), fx = under100(f);
+    q.answer = f; q.opts = shuffle([f].concat(distractors(f, 1, 40)));
+    q.speech = '我住' + fx.hz + '楼';
+    q.reveal = '<span class="hz">'+q.speech+'</span><br><span class="py">wǒ zhù '+fx.py+' lóu</span>';
+    q.ask = '<span class="hz">你住几楼？</span><br>На каком этаже она живёт?'; q.label = function(v){ return v + ' этаж'; }; q.listen = true;
+  }
+  return q;
+}
+function startQuiz(item){
+  quiz = {item:item, n:0, score:0, errors:0, clean:0};
+  nextQuestion();
+}
+function nextQuestion(){
+  if (quiz.n >= QUIZ_LEN) { renderQuizEnd(); return; }
+  quiz.q = makeQuestion(quiz.item.q); quiz.q.erred = false; quiz.q.done = false; quiz.n++;
+  renderQuiz();
+  if (quiz.q.listen) say(quiz.q.speech, true);
+}
+function renderQuiz(){
+  screen = 'quiz'; app.classList.remove('full');
+  var q = quiz.q;
+  app.innerHTML = '<div class="quiz">'+
+    '<div class="hud"><button class="btn" id="q-back">К уроку</button><div class="grow"></div>'+
+      '<div class="stat"><b>'+quiz.n+' из '+QUIZ_LEN+'</b><small>вопрос</small></div>'+
+      '<div class="stat"><b id="q-err">'+quiz.errors+'</b><small>ошибки</small></div>'+
+      '<div class="stat score"><b id="q-score">'+quiz.score+'</b><small>очки</small></div></div>'+
+    '<div class="qcard"><div class="ask">'+q.ask+'</div>'+
+      (q.big ? '<div class="big">'+esc(q.big)+'</div>' : '')+
+      (q.listen ? '<div class="qtools"><button class="btn primary" id="q-play">🔊 Ещё раз</button><button class="btn" id="q-show">Показать текст</button></div>' : '')+
+      '<div class="reveal" id="q-reveal" hidden>'+q.reveal+'</div></div>'+
+    '<div class="opts">'+q.opts.map(function(v){ return '<button class="opt'+(q.hzOpts ? ' hz' : '')+'" data-v="'+v+'">'+esc(q.label(v))+'</button>'; }).join('')+'</div>'+
+  '</div>';
+  document.getElementById('q-back').onclick = function(){ quiz = null; route(); };
+  var pl = document.getElementById('q-play'); if (pl) pl.onclick = function(){ say(q.speech, true); };
+  var sh = document.getElementById('q-show'); if (sh) sh.onclick = function(){ document.getElementById('q-reveal').hidden = false; sh.remove(); };
+  app.querySelectorAll('.opt').forEach(function(b){ b.onclick = function(){ answerQuiz(b); }; });
+}
+function answerQuiz(b){
+  var q = quiz.q; if (q.done || b.classList.contains('bad')) return;
+  if (+b.dataset.v === q.answer) {
+    q.done = true; b.classList.add('ok'); quiz.score += 10; if (!q.erred) quiz.clean++;
+    document.getElementById('q-reveal').hidden = false;
+    var sh = document.getElementById('q-show'); if (sh) sh.remove();
+    say(q.speech);
+    document.getElementById('q-score').textContent = quiz.score;
+    setTimeout(function(){ if (quiz && quiz.q === q) nextQuestion(); }, q.listen ? 1600 : 1300);
+  } else {
+    b.classList.add('bad'); q.erred = true; quiz.score -= 2; quiz.errors++;
+    document.getElementById('q-score').textContent = quiz.score;
+    document.getElementById('q-err').textContent = quiz.errors;
+  }
+}
+function renderQuizEnd(){
+  screen = 'quiz-end';
+  app.innerHTML = '<div class="wrap"><h1>'+esc(quiz.item.title)+': готово</h1>'+
+    '<div class="result"><div><b>'+quiz.score+'</b><small>очки</small></div><div><b>'+quiz.clean+' из '+QUIZ_LEN+'</b><small>с первой попытки</small></div></div>'+
+    '<div class="cta"><button class="btn primary big" id="q-again">Ещё 10 вопросов</button></div>'+
+    '<button class="btn ghost" id="q-menu">К уроку</button></div>';
+  document.getElementById('q-again').onclick = function(){ startQuiz(quiz.item); };
+  document.getElementById('q-menu').onclick = function(){ quiz = null; route(); };
+}
+
+/* ---------- Навигация ---------- */
+function readHash(){ var m = /^#hw=([zj][A-Za-z0-9_-]+)$/.exec(location.hash || ''); return m ? m[1] : null; }
+function route(){
+  lessonSource = null;
+  var les = readLesson() || 'shop'; /* эта игра всегда открывает урок */
+  if (les) { sharedId = null; SHARED_SET = null; lessonId = les; renderLesson(); return; }
+  lessonId = null;
+  var payload = readHash();
+  if (!payload) { sharedId = null; SHARED_SET = null; renderStart(false); return; }
+  sharedId = 'link';
+  unpackSet(payload).then(function(obj){
+    var words = (obj && Array.isArray(obj.w) ? obj.w : []).map(wordFromLink).filter(Boolean);
+    SHARED_SET = words.length ? {title: String(obj.t || 'Домашнее задание'), words: words} : null;
+    renderShared();
+  }).catch(function(){ SHARED_SET = null; renderShared(); });
+}
+window.addEventListener('hashchange', function(){ if (screen !== 'editor' && screen !== 'game' && screen !== 'quiz') { round = null; quiz = null; route(); } });
+if (window.ResizeObserver) { new ResizeObserver(function(){ if (screen === 'game') fitBoard(); }).observe(app); }
+route();
+})();
+</script>
+</body>
+</html>
