@@ -375,6 +375,16 @@ var MONTHS = lessonWords('shop2-month', [
   var n = under100(index + 1);
   return [n.hz+'月', n.py+' yuè', month];
 }));
+var MONTH_GENITIVE = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var MONTH_LENGTHS = [31,28,31,30,31,30,31,31,30,31,30,31];
+function calendarDate(month, day){
+  var m = MONTHS[month - 1], d = under100(day);
+  return {month:month, day:day, hz:m.hz+d.hz+'号', py:m.py+' '+d.py+' hào', ru:day+' '+MONTH_GENITIVE[month - 1]};
+}
+var DATES = MONTH_LENGTHS.reduce(function(dates, days, index){
+  for (var day = 1; day <= days; day++) dates.push(calendarDate(index + 1, day));
+  return dates;
+}, []);
 var POOLS = {nums:NUMS, floors:FLOORS, shop:SHOP, 'shop2-words':SHOP2_WORDS,
   'shop2-phrases':SHOP2_PHRASES, weekdays:WEEKDAYS, months:MONTHS};
 
@@ -1036,7 +1046,8 @@ var LESSONS = {
     {kind:'vocab', practice:'pairs', src:'shop2-words', title:'Слова', sub:'Послушайте слова и найдите пары «иероглифы и перевод»'},
     {kind:'vocab', practice:'listen', src:'shop2-phrases', limit:10, title:'Фразы', sub:'Послушайте фразу и выберите её перевод'},
     {kind:'vocab', practice:'listen', src:'weekdays', title:'Дни недели', sub:'Послушайте и выберите день недели'},
-    {kind:'vocab', practice:'listen', src:'months', title:'Месяцы', sub:'Послушайте и выберите месяц'}
+    {kind:'vocab', practice:'listen', src:'months', title:'Месяцы', sub:'Послушайте и выберите месяц'},
+    {kind:'dates', title:'Даты · сложный уровень', sub:'Услышьте месяц и число и выберите дату'}
   ]}
 };
 var lessonId = null, teacherNav = false;
@@ -1065,6 +1076,7 @@ function renderLesson(){
     if (it.kind === 'pairs') { lessonSource = it.src; startGame(); }
     else if (it.kind === 'lesson') location.hash = 'lesson=' + it.id;
     else if (it.kind === 'vocab') renderVocabulary(it);
+    else if (it.kind === 'dates') renderDateIntro(it);
     else startQuiz(it);
   }; });
   var shop = document.getElementById('l-shop');
@@ -1103,6 +1115,37 @@ function renderVocabulary(item){
   };
   app.querySelectorAll('[data-word]').forEach(function(button){
     button.onclick = function(){ say(POOLS[item.src][+button.dataset.word].hz, true); };
+  });
+  window.scrollTo(0, 0);
+}
+
+function renderDateIntro(item){
+  screen = 'date-intro';
+  app.classList.remove('full');
+  var examples = [calendarDate(4, 1), calendarDate(4, 10)];
+  var rows = examples.map(function(date, index){
+    var reading = date.py + (index === 0 ? ' · сы юэ и хао' : '');
+    return '<div class="row"><div class="t"><span class="hz" lang="zh-CN">'+esc(date.hz)+'</span>'+
+      '<span class="py">'+esc(reading)+'</span><span>'+esc(date.ru)+'</span></div>'+
+      '<button class="btn play" data-example="'+index+'" aria-label="Послушать '+esc(date.hz)+'">▶</button></div>';
+  }).join('');
+  app.innerHTML = '<div class="wrap">'+
+    '<div class="topbar"><button class="btn" id="date-back">К словам урока 2</button></div>'+
+    '<h1>'+esc(item.title)+'</h1>'+
+    '<div class="panel"><b>Как сказать дату по-китайски</b>'+
+      '<div>Сначала год, потом месяц, потом число.</div>'+
+      '<div>Если год понятен, достаточно двух частей.</div>'+
+      '<div><strong>Месяц <span class="hz" lang="zh-CN">月</span> + число <span class="hz" lang="zh-CN">号</span></strong></div>'+
+      '<div><span class="hz" lang="zh-CN">号</span> (hào, «хао») обозначает число месяца.</div>'+
+    '</div>'+
+    '<div class="list vocab-list">'+rows+'</div>'+
+    '<p class="note">В 四月一号 буквально «четвёртый месяц, первое число». В игре послушайте дату и выберите один из четырёх ответов.</p>'+
+    '<button class="btn primary" id="date-ok">ОК</button>'+
+  '</div>';
+  document.getElementById('date-back').onclick = route;
+  document.getElementById('date-ok').onclick = function(){ startQuiz(item); };
+  app.querySelectorAll('[data-example]').forEach(function(button){
+    button.onclick = function(){ say(examples[+button.dataset.example].hz, true); };
   });
   window.scrollTo(0, 0);
 }
@@ -1156,29 +1199,53 @@ function makeQuestion(kind){
   }
   return q;
 }
-function makeVocabularyQuestion(word, pool){
-  var distractors = shuffle(pool.filter(function(entry){ return entry.ru !== word.ru; })).slice(0, 3);
+function makeListeningQuestion(word, distractors, ask){
   var choices = shuffle([word].concat(distractors));
   return {
     answer:choices.indexOf(word),
     opts:choices.map(function(_, index){ return index; }),
     label:function(index){ return choices[index].ru; },
-    ask:'Что прозвучало?',
+    ask:ask,
     speech:word.hz,
     reveal:'<span class="hz" lang="zh-CN">'+esc(word.hz)+'</span><br><span class="py">'+esc(word.py)+'</span>',
     listen:true,
     textOpts:true
   };
 }
+function makeVocabularyQuestion(word, pool){
+  var distractors = shuffle(pool.filter(function(entry){ return entry.ru !== word.ru; })).slice(0, 3);
+  return makeListeningQuestion(word, distractors, 'Что прозвучало?');
+}
+function makeDateQuestion(date){
+  var month = date.month, day = date.day;
+  var otherMonths = MONTH_LENGTHS.map(function(_, index){ return index + 1; }).filter(function(number){
+    return number !== month && day <= MONTH_LENGTHS[number - 1];
+  });
+  var otherMonth = shuffle(otherMonths)[0];
+  var maxDay = Math.min(MONTH_LENGTHS[month - 1], MONTH_LENGTHS[otherMonth - 1]);
+  var otherDays = [day - 10, day - 1, day + 1, day + 10].filter(function(number){
+    return number >= 1 && number <= maxDay;
+  });
+  var otherDay = shuffle(otherDays)[0];
+  return makeListeningQuestion(date, [
+    calendarDate(month, otherDay),
+    calendarDate(otherMonth, day),
+    calendarDate(otherMonth, otherDay)
+  ], 'Какая дата прозвучала?');
+}
 function startQuiz(item){
-  var pool = item.kind === 'vocab' ? POOLS[item.src] : null;
-  var prompts = pool ? shuffle(pool.slice()).slice(0, item.limit || pool.length) : null;
+  var pool = item.kind === 'dates' ? DATES : item.kind === 'vocab' ? POOLS[item.src] : null;
+  var limit = item.kind === 'dates' ? QUIZ_LEN : item.limit;
+  var prompts = pool ? shuffle(pool.slice()).slice(0, limit || pool.length) : null;
   quiz = {item:item, n:0, score:0, errors:0, clean:0, prompts:prompts, length:prompts ? prompts.length : QUIZ_LEN};
   nextQuestion();
 }
 function nextQuestion(){
   if (quiz.n >= quiz.length) { renderQuizEnd(); return; }
-  quiz.q = quiz.prompts ? makeVocabularyQuestion(quiz.prompts[quiz.n], POOLS[quiz.item.src]) : makeQuestion(quiz.item.q);
+  var prompt = quiz.prompts && quiz.prompts[quiz.n];
+  if (quiz.item.kind === 'dates') quiz.q = makeDateQuestion(prompt);
+  else if (prompt) quiz.q = makeVocabularyQuestion(prompt, POOLS[quiz.item.src]);
+  else quiz.q = makeQuestion(quiz.item.q);
   quiz.q.erred = false; quiz.q.done = false; quiz.n++;
   renderQuiz();
   if (quiz.q.listen) say(quiz.q.speech, true);
