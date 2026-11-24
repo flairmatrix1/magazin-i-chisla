@@ -117,6 +117,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .opt{min-height:76px;border-radius:16px;border:2px solid var(--line);background:var(--surface);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;padding:8px;touch-action:manipulation;transition:background-color .12s,border-color .12s}
 .opt.hz{font-size:min(28px,7vw);font-weight:500}
+.opt.text-option{font-size:17px;line-height:1.35;overflow-wrap:anywhere}
+.card .ru{font-size:clamp(13px,3.9cqw,21px);font-weight:600}
+.vocab-list .t .hz{color:var(--ink);font-size:22px}
+.vocab-list .play{min-height:44px}
 .opt.ok{border-color:var(--ok);background:var(--ok-soft)}
 .opt.bad{border-color:var(--bad);background:var(--bad-soft);opacity:.6}
 .card img{position:absolute;top:8px;left:8px;width:calc(100% - 16px);height:calc(100% - 16px);object-fit:contain;border-radius:12px;pointer-events:none}
@@ -327,7 +331,52 @@ var SHOP = [
   ['我','wǒ','я',''], ['你','nǐ','ты',''], ['他','tā','он',''], ['她','tā','она',''],
   ['我们','wǒmen','мы',''], ['你们','nǐmen','вы',''], ['他们','tāmen','они','']
 ].map(function(a){ return {id:'s:'+a[0], hz:a[0], py:a[1], ru:a[2], emoji:a[3], img:''}; });
-var POOLS = {nums:NUMS, floors:FLOORS, shop:SHOP};
+function lessonWords(prefix, entries){
+  return entries.map(function(entry){ return {id:prefix+':'+entry[0], hz:entry[0], py:entry[1], ru:entry[2]}; });
+}
+var SHOP2_WORDS = lessonWords('shop2-word', [
+  ['想','xiǎng','хотеть'], ['买','mǎi','покупать'], ['卖','mài','продавать'],
+  ['去','qù','идти, ехать'], ['书','shū','книга'], ['水','shuǐ','вода'],
+  ['西瓜','xīguā','арбуз'], ['生蚝','shēngháo','устрица'], ['纸巾','zhǐjīn','бумажные салфетки'],
+  ['牛奶','niúnǎi','молоко'], ['袋子','dàizi','пакет'], ['超市','chāoshì','супермаркет'],
+  ['公园','gōngyuán','парк'], ['洗手间','xǐshǒujiān','туалет'], ['这里','zhèlǐ','здесь'],
+  ['哪里','nǎlǐ','где, куда'], ['可以','kěyǐ','можно'], ['还是','háishi','или (при выборе в вопросе)'],
+  ['和','hé','и, с'], ['然后','ránhòu','потом'], ['回家','huí jiā','вернуться домой'],
+  ['做买卖','zuò mǎimai','заниматься торговлей'], ['打包','dǎbāo','упаковать, взять с собой'],
+  ['对不起','duìbuqǐ','извините'], ['哦','ò','а, понятно']
+]);
+var SHOP2_PHRASES = lessonWords('shop2-phrase', [
+  ['我想买书。','wǒ xiǎng mǎi shū','Я хочу купить книгу.'],
+  ['我想买水。','wǒ xiǎng mǎi shuǐ','Я хочу купить воду.'],
+  ['我想买西瓜。','wǒ xiǎng mǎi xīguā','Я хочу купить арбуз.'],
+  ['我想买这个。','wǒ xiǎng mǎi zhège','Я хочу купить вот это.'],
+  ['我想买纸巾和水。','wǒ xiǎng mǎi zhǐjīn hé shuǐ','Я хочу купить салфетки и воду.'],
+  ['这个我不想买。','zhège wǒ bù xiǎng mǎi','Вот это я не хочу покупать.'],
+  ['我去超市。','wǒ qù chāoshì','Я иду в супермаркет.'],
+  ['我去洗手间。','wǒ qù xǐshǒujiān','Я иду в туалет.'],
+  ['我想去公园。','wǒ xiǎng qù gōngyuán','Я хочу пойти в парк.'],
+  ['你想去哪里？','nǐ xiǎng qù nǎlǐ','Куда ты хочешь пойти?'],
+  ['对不起，洗手间在哪里？','duìbuqǐ, xǐshǒujiān zài nǎlǐ','Извините, где туалет?'],
+  ['可以给我袋子吗？','kěyǐ gěi wǒ dàizi ma','Можно мне пакет?'],
+  ['要打包吗？','yào dǎbāo ma','Упаковать с собой?'],
+  ['我的书','wǒ de shū','моя книга'], ['你的水','nǐ de shuǐ','твоя вода'],
+  ['他的书','tā de shū','его книга'], ['我们的西瓜','wǒmen de xīguā','наш арбуз'],
+  ['你们的纸巾','nǐmen de zhǐjīn','ваши салфетки'], ['他们的水','tāmen de shuǐ','их вода']
+]);
+var WEEKDAYS = lessonWords('shop2-weekday', [
+  ['星期一','xīngqī yī','понедельник'], ['星期二','xīngqī èr','вторник'],
+  ['星期三','xīngqī sān','среда'], ['星期四','xīngqī sì','четверг'],
+  ['星期五','xīngqī wǔ','пятница'], ['星期六','xīngqī liù','суббота'],
+  ['星期天','xīngqī tiān','воскресенье']
+]);
+var MONTHS = lessonWords('shop2-month', [
+  'январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'
+].map(function(month, index){
+  var n = under100(index + 1);
+  return [n.hz+'月', n.py+' yuè', month];
+}));
+var POOLS = {nums:NUMS, floors:FLOORS, shop:SHOP, 'shop2-words':SHOP2_WORDS,
+  'shop2-phrases':SHOP2_PHRASES, weekdays:WEEKDAYS, months:MONTHS};
 
 /* ---------- Наборы слов ---------- */
 function poolFor(source){
@@ -342,7 +391,7 @@ function poolFor(source){
   var seen = {};
   return arr.filter(function(w){ if (!w.hz || !w.py || seen[w.hz]) return false; seen[w.hz] = 1; return true; });
 }
-var PAIR_KINDS = {'py-img':['py','img'], 'hz-img':['hz','img'], 'py-hz':['py','hz']};
+var PAIR_KINDS = {'py-img':['py','img'], 'hz-img':['hz','img'], 'py-hz':['py','hz'], 'hz-ru':['hz','ru']};
 var PAIR_NAMES = {'py-img':'пиньинь + картинка', 'hz-img':'иероглифы + картинка', 'py-hz':'пиньинь + иероглифы'};
 function typeFor(w, mode){
   if (mode !== 'auto') return mode;
@@ -443,7 +492,10 @@ function soundBtn(){ return window.speechSynthesis ? '<button class="btn" id="g-
 var round = null;
 var lessonSource = null; /* какой набор урока сейчас играется */
 function currentSource(){ return lessonSource || (sharedId ? 'shared' : st.settings.source); }
-function currentMode(){ return (lessonSource || sharedId) ? 'auto' : st.settings.mode; }
+function currentMode(){
+  if (lessonSource === 'shop2-words') return 'hz-ru';
+  return (lessonSource || sharedId) ? 'auto' : st.settings.mode;
+}
 function eligible(){
   var mode = currentMode();
   var pool = poolFor(currentSource());
@@ -471,6 +523,7 @@ function buildRound(){
   function tryAdd(w, isNew){
     if (items.length >= PAIRS) return false;
     var keys = ['id:'+w.id, 'py:'+normPy(w.py), 'hz:'+w.hz]; if (w.emoji) keys.push('em:'+w.emoji); if (w.num) keys.push('num:'+w.num+(w.unit||''));
+    if (mode === 'hz-ru') keys.push('ru:'+w.ru);
     if (keys.some(function(k){ return used[k]; })) return false;
     keys.forEach(function(k){ used[k] = 1; });
     items.push({w:w, type:typeFor(w, mode), auto: mode === 'auto', isNew: !!isNew});
@@ -499,6 +552,7 @@ function cardHtml(c, i){
   var w = c.w, inner, label;
   if (c.kind === 'hz') { inner = '<span class="face hz" style="--len:'+Math.max(1, Array.from(w.hz).length)+'">'+esc(w.hz)+'</span>'; label = w.hz; }
   else if (c.kind === 'py') { inner = '<span class="face py" style="--len:'+Math.max(4, w.py.length)+'">'+esc(w.py)+'</span>'; label = w.py; }
+  else if (c.kind === 'ru') { inner = '<span class="face ru">'+esc(w.ru)+'</span>'; label = w.ru; }
   else { inner = picHtml(w); label = 'картинка'; }
   return '<button class="card" data-i="'+i+'" aria-label="'+esc(label)+'" aria-pressed="false">'+inner+'</button>';
 }
@@ -571,7 +625,11 @@ function tap(i){
     say(c.w.hz);
     [el, oel].forEach(function(x){ x.classList.add('ok'); x.disabled = true; x.insertAdjacentHTML('beforeend','<span class="tick" aria-hidden="true">✓</span>'); setTimeout(function(){ x.classList.add('done'); }, 450); });
     setScore();
-    if (round.found === round.items.length) { round.done = true; setTimeout(finishRound, 750); }
+    if (round.found === round.items.length) {
+      round.done = true;
+      var completedRound = round;
+      setTimeout(function(){ if (round === completedRound) finishRound(); }, 750);
+    }
   } else {
     round.score -= 2; round.errors++;
     round.erred[c.wid] = 1; round.erred[other.wid] = 1;
@@ -968,10 +1026,17 @@ var LESSONS = {
     {kind:'pairs', src:'nums', title:'Числа 0-999', sub:'Сначала пиньинь и число, потом понемногу иероглифы'},
     {kind:'pairs', src:'floors', title:'Этажи', sub:'3 этаж, sān lóu, 三楼'},
     {kind:'pairs', src:'shop', title:'Слова урока', sub:'多少钱, 这个, 那个, 几个, 要, 不要, 付钱, 美女, 等一下 и местоимения'},
+    {kind:'lesson', id:'shop-2', title:'Слова урока 2', sub:'Покупки, короткие фразы, дни недели и месяцы с озвучкой'},
     {kind:'quiz', q:'listen-num', title:'На слух: число', sub:'Прозвучит число, выберите его'},
     {kind:'quiz', q:'listen-price', title:'На слух: цена', sub:'Продавец называет цену, выберите сумму'},
     {kind:'quiz', q:'listen-floor', title:'На слух: этаж', sub:'你住几楼？ Выберите этаж из ответа'},
     {kind:'quiz', q:'read-num', title:'Число иероглифами', sub:'Видите число, выберите, как оно пишется'}
+  ]},
+  'shop-2': {title:'Слова урока 2', items:[
+    {kind:'vocab', practice:'pairs', src:'shop2-words', title:'Слова', sub:'Послушайте слова и найдите пары «иероглифы и перевод»'},
+    {kind:'vocab', practice:'listen', src:'shop2-phrases', limit:10, title:'Фразы', sub:'Послушайте фразу и выберите её перевод'},
+    {kind:'vocab', practice:'listen', src:'weekdays', title:'Дни недели', sub:'Послушайте и выберите день недели'},
+    {kind:'vocab', practice:'listen', src:'months', title:'Месяцы', sub:'Послушайте и выберите месяц'}
   ]}
 };
 var lessonId = null, teacherNav = false;
@@ -981,11 +1046,13 @@ function renderLesson(){
   screen = 'lesson'; app.classList.remove('full'); lessonSource = null;
   var L = LESSONS[lessonId];
   var acts = L.items.map(function(it, i){
-    var extra = it.kind === 'pairs' ? 'Пары, выучено ' + countMastered(POOLS[it.src]) + ' из ' + POOLS[it.src].length : 'На 10 вопросов';
-    return '<button class="act" data-i="'+i+'"><span class="tag">'+extra+'</span><b>'+esc(it.title)+'</b><small>'+esc(it.sub)+'</small></button>';
+    var extra = it.kind === 'pairs' ? 'Пары, выучено ' + countMastered(POOLS[it.src]) + ' из ' + POOLS[it.src].length : it.kind === 'quiz' ? 'На 10 вопросов' : '';
+    return '<button class="act" data-i="'+i+'">'+(extra ? '<span class="tag">'+extra+'</span>' : '')+'<b>'+esc(it.title)+'</b><small>'+esc(it.sub)+'</small></button>';
   }).join('');
+  var back = lessonId === 'shop-2' ? '<button class="btn" id="l-shop">К магазину и числам</button>'
+    : teacherNav ? '<button class="btn" id="l-home">Все наборы</button>' : '';
   app.innerHTML = '<div class="wrap">'+
-    '<div class="topbar"><div class="brand"><span class="seal">对</span>Китайские пары</div>'+(teacherNav ? '<button class="btn" id="l-home">Все наборы</button>' : '')+'</div>'+
+    '<div class="topbar">'+(lessonId === 'shop-2' ? back : '<div class="brand"><span class="seal">对</span>Китайские пары</div>'+back)+'</div>'+
     '<div><div class="label">Урок</div><h1 style="font-size:clamp(26px,6vw,38px)">'+esc(L.title)+'</h1></div>'+
     soundCheckHtml()+
     '<div class="acts-grid">'+acts+'</div>'+
@@ -996,8 +1063,12 @@ function renderLesson(){
     var it = L.items[+b.dataset.i];
     unlockVoice();
     if (it.kind === 'pairs') { lessonSource = it.src; startGame(); }
+    else if (it.kind === 'lesson') location.hash = 'lesson=' + it.id;
+    else if (it.kind === 'vocab') renderVocabulary(it);
     else startQuiz(it);
   }; });
+  var shop = document.getElementById('l-shop');
+  if (shop) shop.onclick = function(){ location.hash = 'lesson=shop'; };
   var h = document.getElementById('l-home'); if (h) h.onclick = function(){ teacherNav = false; lessonId = null; goHome(); };
   var cp = document.getElementById('lk-copy');
   if (cp) cp.onclick = function(){
@@ -1007,6 +1078,32 @@ function renderLesson(){
   };
   var sd = document.getElementById('lk-send');
   if (sd) sd.onclick = function(){ navigator.share({title:L.title, text:'Урок по китайскому: ' + L.title, url:lessonLink(lessonId)}).catch(function(){}); };
+  window.scrollTo(0, 0);
+}
+
+function renderVocabulary(item){
+  screen = 'vocabulary';
+  app.classList.remove('full');
+  var pairs = item.practice === 'pairs';
+  var rows = POOLS[item.src].map(function(w, index){
+    return '<div class="row"><div class="t"><span class="hz" lang="zh-CN">'+esc(w.hz)+'</span>'+
+      '<span class="py">'+esc(w.py)+'</span><span>'+esc(w.ru)+'</span></div>'+
+      '<button class="btn play" data-word="'+index+'" aria-label="Послушать '+esc(w.hz)+'">▶</button></div>';
+  }).join('');
+  app.innerHTML = '<div class="wrap">'+
+    '<div class="topbar"><button class="btn" id="v-back">К словам урока 2</button></div>'+
+    '<h1>'+esc(item.title)+'</h1>'+
+    '<p class="note">Нажмите ▶, чтобы послушать и повторить.</p>'+
+    '<button class="btn primary" id="v-practice">'+(pairs ? 'Сыграть в пары' : 'Начать аудирование')+'</button>'+
+    '<div class="list vocab-list">'+rows+'</div></div>';
+  document.getElementById('v-back').onclick = route;
+  document.getElementById('v-practice').onclick = function(){
+    if (pairs) { lessonSource = item.src; startGame(); }
+    else startQuiz(item);
+  };
+  app.querySelectorAll('[data-word]').forEach(function(button){
+    button.onclick = function(){ say(POOLS[item.src][+button.dataset.word].hz, true); };
+  });
   window.scrollTo(0, 0);
 }
 
@@ -1059,13 +1156,30 @@ function makeQuestion(kind){
   }
   return q;
 }
+function makeVocabularyQuestion(word, pool){
+  var distractors = shuffle(pool.filter(function(entry){ return entry.ru !== word.ru; })).slice(0, 3);
+  var choices = shuffle([word].concat(distractors));
+  return {
+    answer:choices.indexOf(word),
+    opts:choices.map(function(_, index){ return index; }),
+    label:function(index){ return choices[index].ru; },
+    ask:'Что прозвучало?',
+    speech:word.hz,
+    reveal:'<span class="hz" lang="zh-CN">'+esc(word.hz)+'</span><br><span class="py">'+esc(word.py)+'</span>',
+    listen:true,
+    textOpts:true
+  };
+}
 function startQuiz(item){
-  quiz = {item:item, n:0, score:0, errors:0, clean:0};
+  var pool = item.kind === 'vocab' ? POOLS[item.src] : null;
+  var prompts = pool ? shuffle(pool.slice()).slice(0, item.limit || pool.length) : null;
+  quiz = {item:item, n:0, score:0, errors:0, clean:0, prompts:prompts, length:prompts ? prompts.length : QUIZ_LEN};
   nextQuestion();
 }
 function nextQuestion(){
-  if (quiz.n >= QUIZ_LEN) { renderQuizEnd(); return; }
-  quiz.q = makeQuestion(quiz.item.q); quiz.q.erred = false; quiz.q.done = false; quiz.n++;
+  if (quiz.n >= quiz.length) { renderQuizEnd(); return; }
+  quiz.q = quiz.prompts ? makeVocabularyQuestion(quiz.prompts[quiz.n], POOLS[quiz.item.src]) : makeQuestion(quiz.item.q);
+  quiz.q.erred = false; quiz.q.done = false; quiz.n++;
   renderQuiz();
   if (quiz.q.listen) say(quiz.q.speech, true);
 }
@@ -1074,14 +1188,14 @@ function renderQuiz(){
   var q = quiz.q;
   app.innerHTML = '<div class="quiz">'+
     '<div class="hud"><button class="btn" id="q-back">К уроку</button><div class="grow"></div>'+
-      '<div class="stat"><b>'+quiz.n+' из '+QUIZ_LEN+'</b><small>вопрос</small></div>'+
+      '<div class="stat"><b>'+quiz.n+' из '+quiz.length+'</b><small>вопрос</small></div>'+
       '<div class="stat"><b id="q-err">'+quiz.errors+'</b><small>ошибки</small></div>'+
       '<div class="stat score"><b id="q-score">'+quiz.score+'</b><small>очки</small></div></div>'+
     '<div class="qcard"><div class="ask">'+q.ask+'</div>'+
       (q.big ? '<div class="big">'+esc(q.big)+'</div>' : '')+
       (q.listen ? '<div class="qtools"><button class="btn primary" id="q-play">🔊 Ещё раз</button><button class="btn" id="q-show">Показать текст</button></div>' : '')+
       '<div class="reveal" id="q-reveal" hidden>'+q.reveal+'</div></div>'+
-    '<div class="opts">'+q.opts.map(function(v){ return '<button class="opt'+(q.hzOpts ? ' hz' : '')+'" data-v="'+v+'">'+esc(q.label(v))+'</button>'; }).join('')+'</div>'+
+    '<div class="opts">'+q.opts.map(function(v){ return '<button class="opt'+(q.hzOpts ? ' hz' : '')+(q.textOpts ? ' text-option' : '')+'" data-v="'+v+'">'+esc(q.label(v))+'</button>'; }).join('')+'</div>'+
   '</div>';
   document.getElementById('q-back').onclick = function(){ quiz = null; route(); };
   var pl = document.getElementById('q-play'); if (pl) pl.onclick = function(){ say(q.speech, true); };
@@ -1106,8 +1220,8 @@ function answerQuiz(b){
 function renderQuizEnd(){
   screen = 'quiz-end';
   app.innerHTML = '<div class="wrap"><h1>'+esc(quiz.item.title)+': готово</h1>'+
-    '<div class="result"><div><b>'+quiz.score+'</b><small>очки</small></div><div><b>'+quiz.clean+' из '+QUIZ_LEN+'</b><small>с первой попытки</small></div></div>'+
-    '<div class="cta"><button class="btn primary big" id="q-again">Ещё 10 вопросов</button></div>'+
+    '<div class="result"><div><b>'+quiz.score+'</b><small>очки</small></div><div><b>'+quiz.clean+' из '+quiz.length+'</b><small>с первой попытки</small></div></div>'+
+    '<div class="cta"><button class="btn primary big" id="q-again">'+(quiz.prompts ? 'Повторить аудирование' : 'Ещё 10 вопросов')+'</button></div>'+
     '<button class="btn ghost" id="q-menu">К уроку</button></div>';
   document.getElementById('q-again').onclick = function(){ startQuiz(quiz.item); };
   document.getElementById('q-menu').onclick = function(){ quiz = null; route(); };
